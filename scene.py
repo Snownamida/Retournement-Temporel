@@ -30,7 +30,7 @@ class GridConfigure(Scene):
             # }
         )
         self.grid.scale(0.7)
-        self.grid.move_to(UP * 1)
+        self.grid.move_to(UP * 1.5)
         self.play(Create(self.grid))
 
         for i in range(Nx):
@@ -182,10 +182,12 @@ class GridConfigure(Scene):
 
     def draw_phrase(self):
         phrase1 = Tex(r"$x,y$ sont les coordonnées spatiales en mètres,", color=YELLOW)
-        phrase2 = Tex(r"$i,j$ sont les indices selon x et y.", color=YELLOW)
+        phrase2 = Tex(r"$i,j$ sont les indices selon x et y,", color=YELLOW)
+        phrase3 = Tex(r"$X,Y$ sont les vecteurs où se trouvent les valeurs de $x$ et $y$", color=YELLOW)
         self.play(
-            Write(phrase1.scale(self.scale_text).move_to(3.2 * DOWN)),
+            Write(phrase1.scale(self.scale_text).move_to(2.7 * DOWN)),
             Write(phrase2.scale(self.scale_text).next_to(phrase1, DOWN)),
+            Write(phrase3.scale(self.scale_text).next_to(phrase2, DOWN)),
             run_time=self.runtime_text,
         )
 

@@ -1,2 +1,2 @@
-manim -pqh scene.py GridConfigure
+manim -spqh scene.py GridConfigure
 pause
