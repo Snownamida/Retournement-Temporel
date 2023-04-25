@@ -1,20 +1,19 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib import cm
-import matplotlib.animation as animation
-from matplotlib.animation import ArtistAnimation
+from numpy import sin, cos, pi
 
-# Version de la simulation (1 ou 2)
-version = 2
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
+
 
 # Dimensions de l'espace
-Lx = 15 # largeur
-Ly = 15 # longueur
+Lx = 16 # largeur
+Ly = 9 # longueur
 
 
 # Discrétisation
-Nx = 100 # nombre de points sur l'axe X
-Ny = 100 # nombre de points sur l'axe Y
+Nx = 80 # nombre de points sur l'axe X
+Ny = 80 # nombre de points sur l'axe Y
 
 
 # Construction des axes
@@ -53,42 +52,7 @@ while i < 100:
     # init[i, Ny // 2, Nx // 2] = np.sin(i/10 + np.pi/3)
     i += 1
 
-# Conditions aux limites
-# init[:, 0, :] = "abs" # côté haut
-# init[:, -1, :] = "abs" # côté bas
-# init[:, :, 0] = "abs" # côté gauche
-# init[:, :, -1] = "abs" # côté droit
-# init[:, 0, :] = 0 # côté haut
-# init[:, -1, :] = 0 # côté bas
-# init[:, :, 0] = 0 # côté gauche
-# init[:, :, -1] = 0 # côté droit
 
-
-if version == 1:
-    for i in range(0,Niter-1):      # On connaît déjà l'état de l'espace à t=0, donc le calcul commencera à i+1 = 1
-        print(f"Calcul pour i = {i+1}/{Niter-1}")
-        for pos_x in range(1,Nx-1):   # Itération sur les X
-                for pos_y in range(1,Ny-1):   # Itération sur les Y
-                    u[i+1, pos_y, pos_x] = (dt*v)**2 * ( (u[i, pos_x+1, pos_y] - 2*u[i, pos_x, pos_y] + u[i, pos_x-1, pos_y])/(dx**2) + (u[i, pos_x, pos_y+1] - 2*u[i, pos_x, pos_y] + u[i, pos_x, pos_y-1])/(dy**2) ) + 2*u[i, pos_x, pos_y] - u[i-1, pos_x, pos_y] if (init[i+1, pos_x, pos_y] == None) else init[i+1, pos_x, pos_y]
-
-"""
-Marche pas
-def absorption(espace : np.array, cptr : int, liste_pts : list, X : np.linspace, Y : np.linspace):
-
-    for pos_y, pos_x in liste_pts:
-        # Si on est sur le bord haut
-        if pos_y == 0:
-            espace[cptr, pos_y, pos_x] = espace[cptr, pos_y+1, pos_x]
-        # Si on est sur le bord bas
-        elif pos_y == len(Y)-1:
-            espace[cptr, pos_y, pos_x] = espace[cptr, pos_y-1, pos_x]
-        # Si on est sur le bord gauche
-        elif pos_x == 0:
-            espace[cptr, pos_y, pos_x] = espace[cptr, pos_y, pos_x+1]
-        # Si on est sur le bord droit
-        elif pos_x == len(X)-1:
-            espace[cptr, pos_y, pos_x] = espace[cptr, pos_y, pos_x-1]
-"""
 
 # WIP
 def damping(espace : np.array, cptr : int, Nx : np.linspace, Ny : np.linspace):
@@ -107,96 +71,94 @@ def damping(espace : np.array, cptr : int, Nx : np.linspace, Ny : np.linspace):
     espace[cptr+1] *= damping_x[np.newaxis, :]
     espace[cptr+1] *= damping_y[:, np.newaxis]
 
-if version == 2:
-    #######################################
-    ### RESOLUTION DE L'EQUATION D'ONDE ###
-    #######################################
+#######################################
+### RESOLUTION DE L'EQUATION D'ONDE ###
+#######################################
 
-    # Résolution de l'EDP --> Probablement lente, on pourra voir à la fin pour optimiser
-    for i in range(0, Niter-1):         # On connaît déjà l'état de l'espace à t=0, donc le calcul commencera à `i+1 = 1`
+# Résolution de l'EDP --> Probablement lente, on pourra voir à la fin pour optimiser
+for i in range(0, Niter-1):         # On connaît déjà l'état de l'espace à t=0, donc le calcul commencera à `i+1 = 1`
 
-        print(f"Calcul pour i = {i+1}/{Niter-1}")
-        # abs_queue = []
+    if not i%10: print(f"Calcul pour i = {i+1}/{Niter-1}")
+    # abs_queue = []
 
-        #### RETOURNEMENT ####
-        if i != 200:
-            v = 1
-        else:
-            v = 5
+    #### RETOURNEMENT ####
+    if i != 200:
+        v = 1
+    else:
+        v = 5
 
-        # Itération sur les Y
-        for pos_y in range(0,Ny):
+    # Itération sur les Y
+    for pos_y in range(0,Ny):
 
 
-            # Au bord haut en Y ? -> Dérivée partielle par rapport à Y avancée (vers le bas)
-            if pos_y == 0:
+        # Au bord haut en Y ? -> Dérivée partielle par rapport à Y avancée (vers le bas)
+        if pos_y == 0:
 
+            # Itération sur les X
+            for pos_x in range(0,Nx):
+                
+                # # Ajout éventuel du point à la liste des points absorbants
+                # if init[i+1, pos_y, pos_x] == "abs":
+                #     abs_queue.append((pos_y, pos_x))
+
+                # Au bord gauche en X ? -> Dérivée partielle par rapport à X avancée (à droite)
+                if pos_x == 0:          
+                    u[i+1, pos_y, pos_x] = (dt*v)**2 * ((2*u[i, pos_y, pos_x] - 5*u[i, pos_y+1, pos_x] + 4*u[i, pos_y+2, pos_x] - u[i, pos_y+3, pos_x])/(dy**2) + (2*u[i, pos_y, pos_x] - 5*u[i, pos_y, pos_x+1] + 4*u[i, pos_y, pos_x+2] - u[i, pos_y, pos_x+3])/(dx**2)) + 2*u[i, pos_y, pos_x] - u[i-1, pos_y, pos_x] if ((init[i+1, pos_y, pos_x] == None) or (init[i+1, pos_y, pos_x] == "abs")) else init[i+1, pos_y, pos_x]  # Calcul si le point n'est pas exclu, égal à la condition initiale sinon.
+
+                # Au bord droite en X ? -> Dérivée partielle par rapport à X retardée (à gauche)
+                elif pos_x == len(X)-1:
+                    u[i+1, pos_y, pos_x] = (dt*v)**2 * ((2*u[i, pos_y, pos_x] - 5*u[i, pos_y+1, pos_x] + 4*u[i, pos_y+2, pos_x] - u[i, pos_y+3, pos_x])/(dy**2) + (2*u[i, pos_y, pos_x] - 5*u[i, pos_y, pos_x-1] + 4*u[i, pos_y, pos_x-2] - u[i, pos_y, pos_x-3])/(dx**2)) + 2*u[i, pos_y, pos_x] - u[i-1, pos_y, pos_x] if ((init[i+1, pos_y, pos_x] == None) or (init[i+1, pos_y, pos_x] == "abs")) else init[i+1, pos_y, pos_x]
+
+                # Si on n'est pas au bord X
+                else:    
+                    u[i+1, pos_y, pos_x] = (dt*v)**2 * ((2*u[i, pos_y, pos_x] - 5*u[i, pos_y+1, pos_x] + 4*u[i, pos_y+2, pos_x] - u[i, pos_y+3, pos_x])/(dy**2) + (u[i, pos_y, pos_x+1] - 2*u[i, pos_y, pos_x] + u[i, pos_y, pos_x-1])/(dx**2)) + 2*u[i, pos_y, pos_x] - u[i-1, pos_y, pos_x] if ((init[i+1, pos_y, pos_x] == None) or (init[i+1, pos_y, pos_x] == "abs")) else init[i+1, pos_y, pos_x]
+
+
+        # Au bord bas en Y ? -> Dérivée partielle par rapport à Y retardée (vers le haut)
+        elif pos_y == len(Y)-1:
+                
                 # Itération sur les X
                 for pos_x in range(0,Nx):
-                    
+
                     # # Ajout éventuel du point à la liste des points absorbants
                     # if init[i+1, pos_y, pos_x] == "abs":
                     #     abs_queue.append((pos_y, pos_x))
 
                     # Au bord gauche en X ? -> Dérivée partielle par rapport à X avancée (à droite)
                     if pos_x == 0:          
-                        u[i+1, pos_y, pos_x] = (dt*v)**2 * ((2*u[i, pos_y, pos_x] - 5*u[i, pos_y+1, pos_x] + 4*u[i, pos_y+2, pos_x] - u[i, pos_y+3, pos_x])/(dy**2) + (2*u[i, pos_y, pos_x] - 5*u[i, pos_y, pos_x+1] + 4*u[i, pos_y, pos_x+2] - u[i, pos_y, pos_x+3])/(dx**2)) + 2*u[i, pos_y, pos_x] - u[i-1, pos_y, pos_x] if ((init[i+1, pos_y, pos_x] == None) or (init[i+1, pos_y, pos_x] == "abs")) else init[i+1, pos_y, pos_x]  # Calcul si le point n'est pas exclu, égal à la condition initiale sinon.
+                        u[i+1, pos_y, pos_x] = (dt*v)**2 * ((2*u[i, pos_y, pos_x] - 5*u[i, pos_y-1, pos_x] + 4*u[i, pos_y-2, pos_x] - u[i, pos_y-3, pos_x])/(dy**2) + (2*u[i, pos_y, pos_x] - 5*u[i, pos_y, pos_x+1] + 4*u[i, pos_y, pos_x+2] - u[i, pos_y, pos_x+3])/(dx**2)) + 2*u[i, pos_y, pos_x] - u[i-1, pos_y, pos_x] if ((init[i+1, pos_y, pos_x] == None) or (init[i+1, pos_y, pos_x] == "abs")) else init[i+1, pos_y, pos_x]
 
                     # Au bord droite en X ? -> Dérivée partielle par rapport à X retardée (à gauche)
                     elif pos_x == len(X)-1:
-                        u[i+1, pos_y, pos_x] = (dt*v)**2 * ((2*u[i, pos_y, pos_x] - 5*u[i, pos_y+1, pos_x] + 4*u[i, pos_y+2, pos_x] - u[i, pos_y+3, pos_x])/(dy**2) + (2*u[i, pos_y, pos_x] - 5*u[i, pos_y, pos_x-1] + 4*u[i, pos_y, pos_x-2] - u[i, pos_y, pos_x-3])/(dx**2)) + 2*u[i, pos_y, pos_x] - u[i-1, pos_y, pos_x] if ((init[i+1, pos_y, pos_x] == None) or (init[i+1, pos_y, pos_x] == "abs")) else init[i+1, pos_y, pos_x]
+                        u[i+1, pos_y, pos_x] = (dt*v)**2 * ((2*u[i, pos_y, pos_x] - 5*u[i, pos_y-1, pos_x] + 4*u[i, pos_y-2, pos_x] - u[i, pos_y-3, pos_x])/(dy**2) + (2*u[i, pos_y, pos_x] - 5*u[i, pos_y, pos_x-1] + 4*u[i, pos_y, pos_x-2] - u[i, pos_y, pos_x-3])/(dx**2)) + 2*u[i, pos_y, pos_x] - u[i-1, pos_y, pos_x] if ((init[i+1, pos_y, pos_x] == None) or (init[i+1, pos_y, pos_x] == "abs")) else init[i+1, pos_y, pos_x]
 
                     # Si on n'est pas au bord X
                     else:    
-                        u[i+1, pos_y, pos_x] = (dt*v)**2 * ((2*u[i, pos_y, pos_x] - 5*u[i, pos_y+1, pos_x] + 4*u[i, pos_y+2, pos_x] - u[i, pos_y+3, pos_x])/(dy**2) + (u[i, pos_y, pos_x+1] - 2*u[i, pos_y, pos_x] + u[i, pos_y, pos_x-1])/(dx**2)) + 2*u[i, pos_y, pos_x] - u[i-1, pos_y, pos_x] if ((init[i+1, pos_y, pos_x] == None) or (init[i+1, pos_y, pos_x] == "abs")) else init[i+1, pos_y, pos_x]
+                        u[i+1, pos_y, pos_x] = (dt*v)**2 * ((2*u[i, pos_y, pos_x] - 5*u[i, pos_y-1, pos_x] + 4*u[i, pos_y-2, pos_x] - u[i, pos_y-3, pos_x])/(dy**2) + (u[i, pos_y, pos_x+1] - 2*u[i, pos_y, pos_x] + u[i, pos_y, pos_x-1])/(dx**2)) + 2*u[i, pos_y, pos_x] - u[i-1, pos_y, pos_x] if ((init[i+1, pos_y, pos_x] == None) or (init[i+1, pos_y, pos_x] == "abs")) else init[i+1, pos_y, pos_x]
 
 
-            # Au bord bas en Y ? -> Dérivée partielle par rapport à Y retardée (vers le haut)
-            elif pos_y == len(Y)-1:
-                    
-                    # Itération sur les X
-                    for pos_x in range(0,Nx):
+        # Si on n'est pas au bord Y
+        else:
 
-                        # # Ajout éventuel du point à la liste des points absorbants
-                        # if init[i+1, pos_y, pos_x] == "abs":
-                        #     abs_queue.append((pos_y, pos_x))
+            # Itération sur les X
+            for pos_x in range(0,Nx):
 
-                        # Au bord gauche en X ? -> Dérivée partielle par rapport à X avancée (à droite)
-                        if pos_x == 0:          
-                            u[i+1, pos_y, pos_x] = (dt*v)**2 * ((2*u[i, pos_y, pos_x] - 5*u[i, pos_y-1, pos_x] + 4*u[i, pos_y-2, pos_x] - u[i, pos_y-3, pos_x])/(dy**2) + (2*u[i, pos_y, pos_x] - 5*u[i, pos_y, pos_x+1] + 4*u[i, pos_y, pos_x+2] - u[i, pos_y, pos_x+3])/(dx**2)) + 2*u[i, pos_y, pos_x] - u[i-1, pos_y, pos_x] if ((init[i+1, pos_y, pos_x] == None) or (init[i+1, pos_y, pos_x] == "abs")) else init[i+1, pos_y, pos_x]
+                # # Ajout éventuel du point à la liste des points absorbants
+                # if init[i+1, pos_y, pos_x] == "abs":
+                #     abs_queue.append((pos_y, pos_x))
 
-                        # Au bord droite en X ? -> Dérivée partielle par rapport à X retardée (à gauche)
-                        elif pos_x == len(X)-1:
-                            u[i+1, pos_y, pos_x] = (dt*v)**2 * ((2*u[i, pos_y, pos_x] - 5*u[i, pos_y-1, pos_x] + 4*u[i, pos_y-2, pos_x] - u[i, pos_y-3, pos_x])/(dy**2) + (2*u[i, pos_y, pos_x] - 5*u[i, pos_y, pos_x-1] + 4*u[i, pos_y, pos_x-2] - u[i, pos_y, pos_x-3])/(dx**2)) + 2*u[i, pos_y, pos_x] - u[i-1, pos_y, pos_x] if ((init[i+1, pos_y, pos_x] == None) or (init[i+1, pos_y, pos_x] == "abs")) else init[i+1, pos_y, pos_x]
+                # Au bord gauche en X ? -> Dérivée partielle par rapport à X avancée (à droite)
+                if pos_x == 0:    
+                    u[i+1, pos_y, pos_x] = (dt*v)**2 * ((u[i, pos_y+1, pos_x] - 2*u[i, pos_y, pos_x] + u[i, pos_y-1, pos_x])/(dy**2) + (2*u[i, pos_y, pos_x] - 5*u[i, pos_y, pos_x+1] + 4*u[i, pos_y, pos_x+2] - u[i, pos_y, pos_x+3])/(dx**2)) + 2*u[i, pos_y, pos_x] - u[i-1, pos_y, pos_x] if ((init[i+1, pos_y, pos_x] == None) or (init[i+1, pos_y, pos_x] == "abs")) else init[i+1, pos_y, pos_x]
 
-                        # Si on n'est pas au bord X
-                        else:    
-                            u[i+1, pos_y, pos_x] = (dt*v)**2 * ((2*u[i, pos_y, pos_x] - 5*u[i, pos_y-1, pos_x] + 4*u[i, pos_y-2, pos_x] - u[i, pos_y-3, pos_x])/(dy**2) + (u[i, pos_y, pos_x+1] - 2*u[i, pos_y, pos_x] + u[i, pos_y, pos_x-1])/(dx**2)) + 2*u[i, pos_y, pos_x] - u[i-1, pos_y, pos_x] if ((init[i+1, pos_y, pos_x] == None) or (init[i+1, pos_y, pos_x] == "abs")) else init[i+1, pos_y, pos_x]
+                # Au bord droite en X ? -> Dérivée partielle par rapport à X retardée (à gauche)
+                elif pos_x == len(X)-1:
+                    u[i+1, pos_y, pos_x] = (dt*v)**2 * ((u[i, pos_y+1, pos_x] - 2*u[i, pos_y, pos_x] + u[i, pos_y-1, pos_x])/(dy**2) + (2*u[i, pos_y, pos_x] - 5*u[i, pos_y, pos_x-1] + 4*u[i, pos_y, pos_x-2] - u[i, pos_y, pos_x-3])/(dx**2)) + 2*u[i, pos_y, pos_x] - u[i-1, pos_y, pos_x] if ((init[i+1, pos_y, pos_x] == None) or (init[i+1, pos_y, pos_x] == "abs")) else init[i+1, pos_y, pos_x]
 
-
-            # Si on n'est pas au bord Y
-            else:
-
-                # Itération sur les X
-                for pos_x in range(0,Nx):
-
-                    # # Ajout éventuel du point à la liste des points absorbants
-                    # if init[i+1, pos_y, pos_x] == "abs":
-                    #     abs_queue.append((pos_y, pos_x))
-
-                    # Au bord gauche en X ? -> Dérivée partielle par rapport à X avancée (à droite)
-                    if pos_x == 0:    
-                        u[i+1, pos_y, pos_x] = (dt*v)**2 * ((u[i, pos_y+1, pos_x] - 2*u[i, pos_y, pos_x] + u[i, pos_y-1, pos_x])/(dy**2) + (2*u[i, pos_y, pos_x] - 5*u[i, pos_y, pos_x+1] + 4*u[i, pos_y, pos_x+2] - u[i, pos_y, pos_x+3])/(dx**2)) + 2*u[i, pos_y, pos_x] - u[i-1, pos_y, pos_x] if ((init[i+1, pos_y, pos_x] == None) or (init[i+1, pos_y, pos_x] == "abs")) else init[i+1, pos_y, pos_x]
-
-                    # Au bord droite en X ? -> Dérivée partielle par rapport à X retardée (à gauche)
-                    elif pos_x == len(X)-1:
-                        u[i+1, pos_y, pos_x] = (dt*v)**2 * ((u[i, pos_y+1, pos_x] - 2*u[i, pos_y, pos_x] + u[i, pos_y-1, pos_x])/(dy**2) + (2*u[i, pos_y, pos_x] - 5*u[i, pos_y, pos_x-1] + 4*u[i, pos_y, pos_x-2] - u[i, pos_y, pos_x-3])/(dx**2)) + 2*u[i, pos_y, pos_x] - u[i-1, pos_y, pos_x] if ((init[i+1, pos_y, pos_x] == None) or (init[i+1, pos_y, pos_x] == "abs")) else init[i+1, pos_y, pos_x]
-
-                    # Si on n'est pas au bord X
-                    else:    
-                        u[i+1, pos_y, pos_x] = (dt*v)**2 * ((u[i, pos_y+1, pos_x] - 2*u[i, pos_y, pos_x] + u[i, pos_y-1, pos_x])/(dy**2) + (u[i, pos_y, pos_x+1] - 2*u[i, pos_y, pos_x] + u[i, pos_y, pos_x-1])/(dx**2)) + 2*u[i, pos_y, pos_x] - u[i-1, pos_y, pos_x] if ((init[i+1, pos_y, pos_x] == None) or (init[i+1, pos_y, pos_x] == "abs")) else init[i+1, pos_y, pos_x]
-                        # print(u[i+1, pos_y, pos_x])
-            # damping(u,i+1, Nx, Ny)
+                # Si on n'est pas au bord X
+                else:    
+                    u[i+1, pos_y, pos_x] = (dt*v)**2 * ((u[i, pos_y+1, pos_x] - 2*u[i, pos_y, pos_x] + u[i, pos_y-1, pos_x])/(dy**2) + (u[i, pos_y, pos_x+1] - 2*u[i, pos_y, pos_x] + u[i, pos_y, pos_x-1])/(dx**2)) + 2*u[i, pos_y, pos_x] - u[i-1, pos_y, pos_x] if ((init[i+1, pos_y, pos_x] == None) or (init[i+1, pos_y, pos_x] == "abs")) else init[i+1, pos_y, pos_x]
+        # damping(u,i+1, Nx, Ny)
 
 
 #################

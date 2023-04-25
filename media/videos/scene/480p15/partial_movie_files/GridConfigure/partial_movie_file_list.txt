@@ -1,0 +1,2 @@
+# This file is used internally by FFMPEG.
+file 'file:G:/WORK/学习/法国/1. INSA/6. AS2/6. P2i/5. Projet final/Retournement-Temporel/media/videos/scene/480p15/partial_movie_files/GridConfigure/849281109_988429761_223132457.mp4'

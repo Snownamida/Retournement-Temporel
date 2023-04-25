@@ -2,20 +2,19 @@ import numpy as np
 from numpy import sin, cos, pi
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from paramètres import Lx, Ly, Nx, Ny,X,Y,dx,dy
 
-Nx = 80
-Ny = 80
 
-x_n = np.linspace(0, 16, Nx)
-y_n = np.linspace(0, 9, Ny)
-dx, dy = x_n[1] - x_n[0], y_n[1] - y_n[0]
 
-T = 100
+
+print(dx,len(X))
+
+T = 100 #en secondes
 Nt = 2000
-dt = T / Nt
+dt = T / (Nt-1)
 
 c = 1  # wave speed
-u = np.zeros([Nt, len(x_n), len(y_n)])
+u = np.zeros([Nt, len(X), len(Y)])
 
 u[0, Nx // 2, Ny // 2] = np.sin(0)
 u[1, Nx // 2, Ny // 2] = np.sin(1 / 10)
@@ -40,6 +39,7 @@ for t in range(1, Nt - 1):
 
 fig, ax = plt.subplots()
 
+
 def animate(i):
     ax.clear()
     ax.set_xlim([0, 16])
@@ -47,7 +47,7 @@ def animate(i):
     ax.set_xlabel("x")
     ax.set_ylabel("y")
     ax.set_title("2D Wave Animation")
-    ax.contourf(x_n, y_n, u[i], cmap="inferno")
+    ax.contourf(X, Y, u[i], cmap="inferno")
     return ax
 
 
