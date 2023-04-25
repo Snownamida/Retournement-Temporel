@@ -183,7 +183,10 @@ class GridConfigure(Scene):
     def draw_phrase(self):
         phrase1 = Tex(r"$x,y$ sont les coordonnées spatiales en mètres,", color=YELLOW)
         phrase2 = Tex(r"$i,j$ sont les indices selon x et y,", color=YELLOW)
-        phrase3 = Tex(r"$X,Y$ sont les vecteurs où se trouvent les valeurs de $x$ et $y$", color=YELLOW)
+        phrase3 = Tex(
+            r"$X,Y$ sont les vecteurs où se trouvent les valeurs de $x$ et $y$",
+            color=YELLOW,
+        )
         self.play(
             Write(phrase1.scale(self.scale_text).move_to(2.7 * DOWN)),
             Write(phrase2.scale(self.scale_text).next_to(phrase1, DOWN)),
@@ -192,10 +195,19 @@ class GridConfigure(Scene):
         )
 
     def draw_formula(self):
-        formula1 = MathTex(latex_dx + r"=\frac{L_x}{N_x-1}", color=YELLOW)
-        formula2 = MathTex(latex_dy + r"=\frac{L_y}{N_y-1}", color=YELLOW)
+        formulas = [
+            MathTex(formula, color=YELLOW)
+            for formula in [
+                latex_dx + r"=\frac{L_x}{N_x-1}",
+                latex_dy + r"=\frac{L_y}{N_y-1}",
+                r"x=i\cdot" + latex_dx,
+                r"y=j\cdot" + latex_dy,
+            ]
+        ]
         self.play(
-            Write(formula1.scale(self.scale_text).next_to(self.grid, RIGHT)),
-            Write(formula2.scale(self.scale_text).next_to(formula1, DOWN)),
+            Write(formulas[0].scale(self.scale_text).move_to(UP*3+RIGHT*5.5)),
+            Write(formulas[1].scale(self.scale_text).next_to(formulas[0], DOWN)),
+            Write(formulas[2].scale(self.scale_text).next_to(formulas[1], DOWN)),
+            Write(formulas[3].scale(self.scale_text).next_to(formulas[2], DOWN)),
             run_time=self.runtime_text,
         )
