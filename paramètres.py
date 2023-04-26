@@ -1,5 +1,19 @@
 import numpy as np
-Lx, Ly = 11,7 #en mètres
-Nx, Ny = 12,8
-X, Y = np.linspace(0, Lx, Nx), np.linspace(0, Ly, Ny)
-dx, dy = X[1] - X[0], Y[1] - Y[0]
+from decimal import Decimal
+
+c = 1.5  # wave speed
+
+T = 10  # en secondes
+Nt = 3000
+dt = T / (Nt - 1)
+
+N_point = 41  # nombre de points minimum selon x ou y
+Lx, Ly = 3, 2  # en mètres
+
+dl = min(Lx, Ly) / (N_point - 1)
+
+Nx, Ny = (int(Decimal(str(L)) // Decimal(str(dl))) + 1 for L in (Lx, Ly))
+Lx, Ly = (Nx - 1) * dl, (Ny - 1) * dl
+X, Y =np.meshgrid( np.linspace(0, Lx, Nx), np.linspace(0, Ly, Ny))
+
+para_string=f"c={c}, T={T}, Nt={Nt}, N_point={N_point}, Lx={Lx}, Ly={Ly}"

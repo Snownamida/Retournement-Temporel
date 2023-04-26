@@ -1,55 +1,34 @@
 import numpy as np
 from numpy import sin, cos, pi
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-from paramètres import Lx, Ly, Nx, Ny,X,Y,dx,dy
+
+from paramètres import *
 
 
 
+u = np.zeros([Nt, Nx, Ny])
 
-print(dx,len(X))
 
-T = 100 #en secondes
-Nt = 2000
-dt = T / (Nt-1)
+def laplacian(u_t, i, j):
+    res = 0
+    for i_adj, j_adj in [(i - 1, j), (i + 1, j), (i, j - 1), (i, j + 1)]:
+        if 0 <= i_adj < Nx and 0 <= j_adj < Ny:
+            res += u_t[i_adj, j_adj] - u_t[i, j]
+    return res / dl**2
 
-c = 1  # wave speed
-u = np.zeros([Nt, len(X), len(Y)])
 
 u[0, Nx // 2, Ny // 2] = np.sin(0)
 u[1, Nx // 2, Ny // 2] = np.sin(1 / 10)
 
-for t in range(1, Nt - 1):
-    for x in range(1, Nx - 1):
-        for y in range(1, Ny - 1):
-            if t < 100:
-                u[t, Nx // 2, Ny // 2] = np.sin(t / 10)
-
-            u[t + 1, x, y] = (
-                c**2
-                * dt**2
-                * (
-                    ((u[t, x + 1, y] - 2 * u[t, x, y] + u[t, x - 1, y]) / (dx**2))
-                    + ((u[t, x, y + 1] - 2 * u[t, x, y] + u[t, x, y - 1]) / (dy**2))
-                )
-                + 2 * u[t, x, y]
-                - u[t - 1, x, y]
+for n in range(1, Nt):
+    for i in range(Nx):
+        for j in range(Ny):
+            if n < 100:
+                u[n, Nx // 2, Ny // 2] = np.sin(n / 10)
+            u[n, i, j] = (
+                dt**2 * c**2 * laplacian(u[n - 1], i, j)
+                + 2 * u[n - 1, i, j]
+                - u[n - 2, i, j]
             )
 
+np.save("./wave/"+para_string, u)
 
-fig, ax = plt.subplots()
-
-
-def animate(i):
-    ax.clear()
-    ax.set_xlim([0, 16])
-    ax.set_ylim([0, 9])
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    ax.set_title("2D Wave Animation")
-    ax.contourf(X, Y, u[i], cmap="inferno")
-    return ax
-
-
-anim = animation.FuncAnimation(fig, animate, frames=Nt, interval=50)
-anim.save("2D_wave_animation.mp4", writer="ffmpeg", fps=30)
