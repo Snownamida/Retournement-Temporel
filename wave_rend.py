@@ -7,8 +7,7 @@ from paramètres import *
 u = np.load("./wave/" + para_string + ".npy")
 
 fig, ax = plt.subplots(figsize=(16, 9))
-u_min, u_max = np.min(u), np.max(u)
-
+u_max =np.max(np.abs(u[100:]))
 
 def animate(i):
     ax.clear()
@@ -16,8 +15,8 @@ def animate(i):
     ax.set_ylim([0, Ly])
     ax.set_xlabel("x")
     ax.set_ylabel("y")
-    ax.set_title("2D Wave Animation")
-    ax.imshow(u[i].T, cmap="coolwarm", vmin=u_min, vmax=u_max, extent=[0, Lx, 0, Ly])
+    ax.set_title(f"t={i*dt:.5f}")
+    ax.imshow(u[i].T, cmap="coolwarm", vmin=-u_max, vmax=u_max, extent=[0, Lx, 0, Ly])
     return ax
 
 
