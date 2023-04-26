@@ -4,10 +4,11 @@ import matplotlib.animation as animation
 
 from paramètres import *
 
-u=np.load('u.npy')
+u = np.load("./wave/" + para_string + ".npy")
 
 fig, ax = plt.subplots(figsize=(16, 9))
 u_min, u_max = np.min(u), np.max(u)
+
 
 def animate(i):
     ax.clear()
@@ -16,9 +17,9 @@ def animate(i):
     ax.set_xlabel("x")
     ax.set_ylabel("y")
     ax.set_title("2D Wave Animation")
-    ax.imshow(u[i].T, cmap="jet", vmin=u_min, vmax=u_max, extent=[0, Lx, 0, Ly])
+    ax.imshow(u[i].T, cmap="coolwarm", vmin=u_min, vmax=u_max, extent=[0, Lx, 0, Ly])
     return ax
 
 
 anim = animation.FuncAnimation(fig, animate, frames=Nt, interval=50)
-anim.save("./wave/"+para_string+".mp4", writer="ffmpeg", fps=30)
+anim.save("./wave/" + para_string + ".mp4", writer="ffmpeg", fps=60)
