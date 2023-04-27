@@ -4,6 +4,7 @@ from numpy import sin, cos, pi
 from paramètres import *
 
 u = np.zeros([Nt, Nx, Ny])
+print(f"etimated size: {u.nbytes/1024**2:.2f} MB")
 
 
 def laplacian(u_t, i, j):
@@ -36,17 +37,19 @@ def laplacian(u_t, i, j):
 u[0, Nx // 2, Ny // 2] = np.sin(0)
 u[1, Nx // 2, Ny // 2] = np.sin(1 / 10)
 
+print("Emulating...")
 for n in range(1, Nt):
-    print(f"{n}/{Nt}",flush=True)
+    if not n%10 : print(f"\r{n}/{Nt}",end='',flush=True)
     for i in range(Nx):
         for j in range(Ny):
-            if n < 100:
-                u[n, Nx // 2, Ny // 2] = np.sin(n / 10)
+            if n*dt < 0.3:
+                u[n, Nx // 2, Ny // 2] = np.sin(30*n*dt)
             u[n, i, j] = (
                 dt**2 * c**2 * laplacian(u[n - 1], i, j)
                 + 2 * u[n - 1, i, j]
                 - u[n - 2, i, j]
             )
+print('\ndone')
 
-np.save("./wave/"+para_string, u)
+np.savez_compressed("./wave/"+para_string, u=u)
 

@@ -15,4 +15,6 @@ def haha():
 
 print(np.where(np.max(u[:,0,:],1)!=0)[0][0])
 
-print(u[75,0,Ny//2-5:Ny//2+5])
+# print(u[75,0,Ny//2-5:Ny//2+5])
+
+print(np.max(np.abs(u[100:])))

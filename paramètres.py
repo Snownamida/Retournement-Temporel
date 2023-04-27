@@ -3,12 +3,12 @@ from decimal import Decimal
 
 c = 1.5  # wave speed
 
-T = 2  # en secondes
-Nt = 600
+T = 0.5  # en secondes
+Nt = 501
 dt = T / (Nt - 1)
 
-N_point = 1000  # nombre de points minimum selon x ou y
-Lx, Ly = 3, 2  # en mètres
+N_point = 101  # nombre de points minimum selon x ou y
+Lx, Ly = 0.5, 0.5  # en mètres
 
 dl = min(Lx, Ly) / (N_point - 1)
 
