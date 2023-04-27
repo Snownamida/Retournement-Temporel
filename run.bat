@@ -1,2 +1,2 @@
-python wave_emu.py && python wave_rend.py
+python wave_emu.py && python wave_render.py
 pause
