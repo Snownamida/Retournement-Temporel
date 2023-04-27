@@ -5,7 +5,11 @@ import time
 
 from paramètres import *
 
-u = np.zeros([Nt, Nx, Ny])
+
+u_extended = np.zeros([Nt, Nx + 2 * N_absorb, Ny + 2 * N_absorb])
+u = u_extended[:, N_absorb:-N_absorb, N_absorb:-N_absorb]
+α = np.ones_like(u_extended[0]) * α
+α[N_absorb:-N_absorb, N_absorb:-N_absorb] = 0
 print(f"etimated size: {u.nbytes/1024**2:.2f} MB")
 
 
@@ -19,7 +23,8 @@ Lap_kernel = 0.5 * np.array(
 
 
 def laplacian(u_t):
-    return fftconvolve(u_t, Lap_kernel, mode="same") / dl**2
+    Lap_u = fftconvolve(u_t, Lap_kernel, mode="same") / dl**2
+    return Lap_u
 
 
 print("Emulating...")
@@ -34,13 +39,17 @@ for n in range(Nt):
         )
         t0 = t1
 
-    Lap_u = laplacian(u[n - 1])
+    Lap_u = laplacian(u_extended[n - 1])
     if n >= 2:
-        u[n] = dt**2 * c**2 * Lap_u + 2 * u[n - 1] - u[n - 2]
+        u_extended[n] = (
+            dt**2 * (c**2 * Lap_u - α * (u_extended[n - 1] - u_extended[n - 2]))
+            + 2 * u_extended[n - 1]
+            - u_extended[n - 2]
+        )
 
-    if n * dt < 0.3:
-        u[n, Nx // 2, Ny // 2] = np.sin(50 * n * dt)
-        u[n, Nx // 3, Ny // 3] = np.sin(50 * n * dt)
+    if n * dt <= 2 * pi / 70:
+        u[n, Nx // 2, Ny // 2] = np.sin(70 * n * dt)
+
 
 print("\ndone")
 
