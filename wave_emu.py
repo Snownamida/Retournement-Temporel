@@ -22,12 +22,9 @@ def laplacian(u_t):
     return fftconvolve(u_t, Lap_kernel, mode="same") / dl**2
 
 
-u[0, Nx // 2, Ny // 2] = np.sin(0)
-u[1, Nx // 2, Ny // 2] = np.sin(1 / 10)
-
 print("Emulating...")
 t0 = time.time()
-for n in range(1, Nt):
+for n in range(Nt):
     if not n % 10:
         t1 = time.time()
         print(
@@ -36,11 +33,15 @@ for n in range(1, Nt):
             flush=True,
         )
         t0 = t1
+        
     Lap_u = laplacian(u[n - 1])
-    u[n] = dt**2 * c**2 * Lap_u + 2 * u[n - 1] - u[n - 2]
+    if n>=2:
+        u[n] = dt**2 * c**2 * Lap_u + 2 * u[n - 1] - u[n - 2]
 
     if n * dt < 0.3:
         u[n, Nx // 2, Ny // 2] = np.sin(50 * n * dt)
+        u[n, Nx // 3, Ny // 3] = np.sin(50 * n * dt)
+
 print("\ndone")
 
 print("Saving...")

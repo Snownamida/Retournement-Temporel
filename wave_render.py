@@ -32,7 +32,7 @@ def animate(n_frame):
     ax.set_xlabel("x")
     ax.set_ylabel("y")
     ax.set_title(f"t={n*dt:.5f}")
-    ax.imshow(u[n].T, cmap="coolwarm", vmin=-u_max, vmax=u_max, extent=[0, Lx, 0, Ly])
+    ax.imshow(u[n,:,::-1].T, cmap="coolwarm", vmin=-u_max, vmax=u_max, extent=[0, Lx, 0, Ly])
     return ax
 
 anim = animation.FuncAnimation(fig, animate, frames=N_frame, interval=50)
