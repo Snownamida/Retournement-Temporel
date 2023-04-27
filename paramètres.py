@@ -8,7 +8,7 @@ Nt = 501
 dt = T / (Nt - 1)
 
 N_point = 101  # nombre de points minimum selon x ou y
-Lx, Ly = 0.5, 0.5  # en mètres
+Lx, Ly = 1.5, 1  # en mètres
 
 dl = min(Lx, Ly) / (N_point - 1)
 
