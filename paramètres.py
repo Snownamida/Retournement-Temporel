@@ -18,11 +18,11 @@ Lx, Ly = (Nx - 1) * dl, (
 
 # Paramètres de simulation
 c = 1.5  # Vitesse de propagation des ondes dans le milieu (m/s)
-T = 2  # Temps final de simulation (s)
-Nt = 401  # Nombre d'itérations
+T = 4  # Temps final de simulation (s)
+Nt = 1001  # Nombre d'itérations
 dt = T / (Nt - 1)  # Pas de temps (s)
-α = 1600  # Coefficient d'amortissement
-L_absorb = 0.5
+α = 1000  # Coefficient d'amortissement
+L_absorb = 1
 N_absorb = int(L_absorb / dl)  # Nombre de points absorbants aux bords
 
 # Chaîne de caractères pour le nom du fichier

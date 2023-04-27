@@ -15,7 +15,7 @@ render_speed = (
 N_frame = int(fps * render_time / render_speed)
 
 fig, ax = plt.subplots(figsize=(16, 9))
-u_max = 0.2
+u_max = 0.1
 
 
 print("rendering...")

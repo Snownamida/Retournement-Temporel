@@ -48,6 +48,7 @@ for n in range(Nt):
         )
 
     if n * dt <= 2 * pi / 70:
+        u[n, Nx // 3, Ny // 3] = np.sin(70 * n * dt)
         u[n, Nx // 2, Ny // 2] = np.sin(70 * n * dt)
 
 
