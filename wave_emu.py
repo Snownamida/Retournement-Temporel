@@ -33,9 +33,9 @@ for n in range(Nt):
             flush=True,
         )
         t0 = t1
-        
+
     Lap_u = laplacian(u[n - 1])
-    if n>=2:
+    if n >= 2:
         u[n] = dt**2 * c**2 * Lap_u + 2 * u[n - 1] - u[n - 2]
 
     if n * dt < 0.3:
