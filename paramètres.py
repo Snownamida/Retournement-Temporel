@@ -14,7 +14,7 @@ Nx, Ny = [int(L / dl) + 1 for L in (Lx, Ly)]
 Lx, Ly = (Nx - 1) * dl, (
     Ny - 1
 ) * dl  # Recalcul des longueurs de effectives l'espace à partir des nouveaux nombres de points
-
+X, Y = [grid.T for grid in np.meshgrid(np.linspace(0, Lx, Nx), np.linspace(0, Ly, Ny))]
 
 # Paramètres de simulation
 c = 1.5  # Vitesse de propagation des ondes dans le milieu (m/s)
@@ -27,3 +27,17 @@ N_absorb = int(L_absorb / dl)  # Nombre de points absorbants aux bords
 
 # Chaîne de caractères pour le nom du fichier
 para_string = f"c={c}, T={T}, Nt={Nt}, N_point={N_point}, Lx={Lx}, Ly={Ly}, α={α}, n_absorb={N_absorb}"
+
+#para de capteur
+width = 0.001
+a, b = 2, 1.5
+coeur_size = 0.8
+coeur_fun = ((X - a) / 1.3) ** 2 + ((Y - b) - (np.abs(X - a) / 1.3) ** (2 / 3)) ** 2
+coeur = (coeur_fun <= coeur_size + width) & (coeur_fun >= coeur_size - width)
+# print(np.sum(coeur))
+# print(coeur[56,158])
+
+
+#para de source
+x_source,y_source=1.8,2
+i_source,j_source=int(x_source/dl),int(y_source/dl)

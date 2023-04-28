@@ -1,20 +1,14 @@
 import numpy as np
+from numpy import sin, cos, pi
+import matplotlib.pyplot as plt
+from scipy.signal import fftconvolve
+import time
 
 from paramètres import *
 
-u = np.load("./wave/" + para_string + ".npy")
 
-def haha():
-    print(np.max(np.abs(u)))
-    print(np.max(u))
-    print(np.min(u))
-
-    print(np.max(np.abs(u[100:])))
-    print(np.max(u[100:]))
-    print(np.min(u[100:]))
-
-print(np.where(np.max(u[:,0,:],1)!=0)[0][0])
-
-# print(u[75,0,Ny//2-5:Ny//2+5])
-
-print(np.max(np.abs(u[100:])))
+u = np.load("./wave/" + para_string + ".npz")["u"]
+fig,ax=plt.subplots()
+ax.plot(u[:,56,158])
+fig.show()
+plt.pause(0)

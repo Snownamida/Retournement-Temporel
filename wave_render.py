@@ -7,11 +7,13 @@ from paramètres import *
 
 u = np.load("./wave/" + para_string + ".npz")["u"]
 
+
 fps = 30
 render_time = T  # temps de rendu
 render_speed = (
     0.15  # 1 seconde du temps réel correspond à combien seconde du temps de rendu
 )
+
 N_frame = int(fps * render_time / render_speed)
 
 fig, ax = plt.subplots(figsize=(16, 9))
@@ -39,12 +41,16 @@ def animate(n_frame):
     ax.set_xlabel("x")
     ax.set_ylabel("y")
     ax.set_title(f"t={n*dt:.5f}")
-    ax.imshow(
+    u_img = ax.imshow(
         u[n, :, ::-1].T, cmap="coolwarm", vmin=-u_max, vmax=u_max, extent=[0, Lx, 0, Ly]
     )
-    return ax
+    coeur_img = ax.imshow(
+        coeur[:, ::-1].T, cmap="gray", alpha=0.3, extent=[0, Lx, 0, Ly]
+    )
+
+    return u_img, coeur_img
 
 
-anim = animation.FuncAnimation(fig, animate, frames=N_frame, interval=50)
+anim = animation.FuncAnimation(fig, animate, frames=N_frame, interval=50, blit=True)
 anim.save("./wave/" + para_string + ".mp4", writer="ffmpeg", fps=60)
 print("\ndone")
