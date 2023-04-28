@@ -10,7 +10,7 @@ u = np.load("./wave/" + para_string + ".npz")["u"]
 
 fps = 40
 render_time = T  # temps de rendu
-render_speed = 0.15
+render_speed = 0.3
 # 1 seconde du temps réel correspond à combien seconde du temps de rendu
 
 N_frame = int(fps * render_time / render_speed)

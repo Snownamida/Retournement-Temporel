@@ -8,8 +8,13 @@ from paramètres import *
 
 u_extended = np.zeros([Nt, Nx + 2 * N_absorb, Ny + 2 * N_absorb])
 u = u_extended[:, N_absorb:-N_absorb, N_absorb:-N_absorb]
-α = np.ones_like(u_extended[0]) * α
-α[N_absorb:-N_absorb, N_absorb:-N_absorb] = 0
+α = np.zeros_like(u_extended[0])
+
+α[0:N_absorb] += np.linspace(α_max, 0, N_absorb)[:, None]
+α[-N_absorb:] += np.linspace(0, α_max, N_absorb)[:, None]
+α[:, 0:N_absorb] += np.linspace(α_max, 0, N_absorb)
+α[:, -N_absorb:] += np.linspace(0, α_max, N_absorb)
+
 print(f"etimated size: {u.nbytes/1024**2:.2f} MB")
 
 
@@ -51,7 +56,7 @@ for n in range(Nt):
         u[n, i_source, j_source] = np.sin(70 * n * dt)
 
     if n * dt >= 1.5:
-        u[n] = np.where(coeur,  u[2 * int(1.5 / dt) - n], u[n])
+        u[n] = np.where(coeur, u[2 * int(1.5 / dt) - n], u[n])
 
     # print(u[n, 56, 158])
 
