@@ -3,7 +3,7 @@ from decimal import Decimal
 
 # Paramètres de l'espace
 Lx, Ly = 4, 3  # Largeur, longueur (m)
-N_point = 201  # Nombre de points minimum selon x ou y
+N_point = 401  # Nombre de points minimum selon x ou y
 
 
 # Discrétisation
@@ -36,7 +36,7 @@ coeur_fun = ((X - a) / 1.3) ** 2 + ((Y - b) - (np.abs(X - a) / 1.3) ** (2 / 3)) 
 coeur = (coeur_fun <= coeur_size + width) & (coeur_fun >= coeur_size - width)
 # print(np.sum(coeur))
 # print(coeur[56,158])
-
+# print(np.argwhere(coeur))
 
 #para de source
 x_source,y_source=1.8,2
