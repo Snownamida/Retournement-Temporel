@@ -53,7 +53,8 @@ for n in range(Nt):
         )
 
     if n * dt <= 2 * pi / 70:
-        u[n, i_source, j_source] = np.sin(70 * n * dt)
+        for i_source, j_source in source_indices:
+            u[n, i_source, j_source] = np.sin(70 * n * dt)
 
     if n * dt >= 1.5:
         u[n] = np.where(coeur, u[2 * int(1.5 / dt) - n], u[n])

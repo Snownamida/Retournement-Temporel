@@ -18,8 +18,8 @@ X, Y = [grid.T for grid in np.meshgrid(np.linspace(0, Lx, Nx), np.linspace(0, Ly
 
 # Paramètres de simulation
 c = 1.5  # Vitesse de propagation des ondes dans le milieu (m/s)
-T = 3  # Temps final de simulation (s)
-Nt = 751  # Nombre d'itérations
+T = 4  # Temps final de simulation (s)
+Nt = 1001  # Nombre d'itérations
 dt = T / (Nt - 1)  # Pas de temps (s)
 α_max = 5000  # Coefficient d'amortissement
 L_absorb = 1
@@ -28,7 +28,7 @@ N_absorb = int(L_absorb / dl)  # Nombre de points absorbants aux bords
 # Chaîne de caractères pour le nom du fichier
 para_string = f"c={c}, T={T}, Nt={Nt}, N_point={N_point}, Lx={Lx}, Ly={Ly}, α={α_max}, n_absorb={N_absorb}"
 
-#para de capteur
+# para de capteur
 width = 0.001
 a, b = 2, 1.5
 coeur_size = 0.8
@@ -38,6 +38,12 @@ coeur = (coeur_fun <= coeur_size + width) & (coeur_fun >= coeur_size - width)
 # print(coeur[56,158])
 # print(np.argwhere(coeur))
 
-#para de source
-x_source,y_source=1.8,2
-i_source,j_source=int(x_source/dl),int(y_source/dl)
+# para de source
+source_coordonnées = np.array(
+    [
+        [1.8, 2],
+        [1, 1],
+        [3, 2.5],
+    ]
+)
+source_indices = np.rint(source_coordonnées / dl).astype(int)
