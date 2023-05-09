@@ -56,7 +56,7 @@ class Onde:
         # Chaîne de caractères pour le nom du fichier
         self.para_string = f"c={self.c}, T={self.T}, Nt={self.Nt}, N_point={self.N_point}, Lx={self.Lx}, Ly={self.Ly}, α={self.α_max}, n_absorb={self.N_absorb}"
 
-    def create_capteur(self):
+    def create_capteurs(self):
         width = 0.001
         a, b = 2, 1.5
         coeur_size = 0.8
