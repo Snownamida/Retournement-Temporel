@@ -54,7 +54,7 @@
 \thispagestyle{fancy}
 
 
-Introduction
+Notre projet vise à illustrer le principe du retournement temporel, une technique utilisée dans divers domaines tels que le contrôle non destructif, le diagnostic médical et les télécommunications. Cette technique repose sur l'invariance de l'équation des ondes par renversement du temps. Le but du projet est de développer un simulateur de retournement temporel en 2D pour des équations d'ondes acoustiques. La méthode des différences finies sera utilisée pour résoudre le modèle en temporel. Les effets des conditions aux bords et l'influence des capteurs seront étudiés, et des tests de validation seront effectués. L'objectif final est de retrouver le message caché dans une source initiale en identifiant les paramètres physiques des équations des ondes utilisées.
 
 \section{Démarche scientifique et les méthodes numériques}
 Le retournement temporel est une technique complexe alors sa simulation comporte plusieurs étapes. Tout d'abord il a fallu l'exprimer en langage mathématique : il s'agit d'écrire l'équation à résoudre et les conditions initiales ou les conditions exigées. Ensuite on réalise la simulation des ondes, avant de mettre en place les capteurs. Pendant cette étape, nous avons rencontré le problème de réflexion au bord de la zone de simulation, et avons alors inséré une zone d'absorption en dehors de la zone de simulation pour résoudre ce problème. Enfin, nous avons ajouté dans notre simulateur les codes faisant réémettre les ondes enregistrées par les capteurs au cours de la simulation.
