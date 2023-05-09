@@ -47,7 +47,7 @@ for n in range(Nt):
     Lap_u = laplacian(u_extended[n - 1])
     if n >= 2:
         u_extended[n] = (
-            dt**2 * (c**2 * Lap_u - α * (u_extended[n - 1] - u_extended[n - 2]))
+            dt**2 * (c**2 * Lap_u - α * (u_extended[n - 1] - u_extended[n - 2])/dt)
             + 2 * u_extended[n - 1]
             - u_extended[n - 2]
         )

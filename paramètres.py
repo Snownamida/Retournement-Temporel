@@ -1,5 +1,4 @@
 import numpy as np
-from decimal import Decimal
 
 # Paramètres de l'espace
 Lx, Ly = 4, 3  # Largeur, longueur (m)
@@ -21,7 +20,7 @@ c = 1.5  # Vitesse de propagation des ondes dans le milieu (m/s)
 T = 4  # Temps final de simulation (s)
 Nt = 1001  # Nombre d'itérations
 dt = T / (Nt - 1)  # Pas de temps (s)
-α_max = 5000  # Coefficient d'amortissement
+α_max = 20  # Coefficient d'amortissement
 L_absorb = 1
 N_absorb = int(L_absorb / dl)  # Nombre de points absorbants aux bords
 
@@ -34,10 +33,6 @@ a, b = 2, 1.5
 coeur_size = 0.8
 coeur_fun = ((X - a) / 1.3) ** 2 + ((Y - b) - (np.abs(X - a) / 1.3) ** (2 / 3)) ** 2
 coeur = (coeur_fun <= coeur_size + width) & (coeur_fun >= coeur_size - width)
-# print(np.sum(coeur))
-# print(coeur[56,158])
-# print(np.argwhere(coeur))
-
 # para de source
 source_coordonnées = np.array(
     [
