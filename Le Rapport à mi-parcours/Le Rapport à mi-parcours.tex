@@ -86,7 +86,7 @@ On introduit ensuite à un ou plusieurs points dans l'espace les perturbations s
 \subsection{Approche numérique}
 Afin de trouver la solution numérique de l'équation des ondes, nous utilisons la méthode de différence finie, avec une discrétisation de l'espace et du temps. Le temps est divisé en pas de $dt$, l'espace en pas de $dl=dx=dy$. Cette normalisation permet l'utilisation de la convolution pour le calcul laplacien que nous détaillerons après.
 
-L'équation des ondes étant une équation d'ordre 2 et ne dépendant pas de la dérivée du premier ordre, nous avons choisi le schéma explicite de Verlet à deux pas. **formule**. Il permet un calcul rapide et est facile à implémenter mais moins précis (c'est un schéma instable). Par la suite, nous souhaitons implémenter un schéma implicite et stable.
+L'équation des ondes étant une équation d'ordre 2 et ne dépendant pas de la dérivée du premier ordre, nous avons choisi le schéma explicite de Verlet à deux pas : $u(t)=2u(t-dt)-u(t-2dt)+\ddot{u}(t){dt}^2$. Il permet un calcul rapide et est facile à implémenter mais moins précis (c'est un schéma instable). Par la suite, nous souhaitons implémenter un schéma implicite et stable.
 
 Nous avons remarqué que le calcul laplacien par la différence finie peut être réalisé par la convolution, dont l'algorithme est présent dans plusieurs librairies mathématiques. L'utilisation de ces librairies existantes permet d'améliorer considérablement la vitesse de simulation, puisque leurs algorithmes contiennent des astuces  pour accélérer le calcul, comme FFT (Transformation de Fourier rapide) dans fftconvolve, la fonction que nous avons choisie dans Scipy. De plus, ces librairies sont codées en C ou Fortran qui sont plus rapides que Python.
 
