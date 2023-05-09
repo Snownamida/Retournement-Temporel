@@ -27,12 +27,15 @@ class Onde:
     α_max = 20  # Coefficient d'amortissement
     L_absorb = 1
 
-    def __init__(self) -> None:
+    def __init__(self, save_data, render_only) -> None:
         self.discretize()
         self.create_capteurs()
         self.create_sources()
-        self.emulate()
-        self.render()
+        if not render_only:
+            self.emulate()
+        if save_data:
+            self.save()
+        self.render(render_only)
 
     def discretize(self):
         # Distance `dl` entre chaque point de l'espace. -1 car le (0;0) est pris en compte dans `N_point`
@@ -80,7 +83,7 @@ class Onde:
         u_extended = np.zeros(
             [self.Nt, self.Nx + 2 * self.N_absorb, self.Ny + 2 * self.N_absorb]
         )
-        u = u_extended[
+        self.u = u_extended[
             :, self.N_absorb : -self.N_absorb, self.N_absorb : -self.N_absorb
         ]
         α = np.zeros_like(u_extended[0])
@@ -90,7 +93,7 @@ class Onde:
         α[:, 0 : self.N_absorb] += np.linspace(self.α_max, 0, self.N_absorb)
         α[:, -self.N_absorb :] += np.linspace(0, self.α_max, self.N_absorb)
 
-        print(f"etimated size: {u.nbytes/1024**2:.2f} MB")
+        print(f"etimated size: {self.u.nbytes/1024**2:.2f} MB")
 
         print("Emulating...")
         t0 = time.time()
@@ -118,19 +121,23 @@ class Onde:
 
             if n * self.dt <= 2 * pi / 70:
                 for i_source, j_source in self.source_indices:
-                    u[n, i_source, j_source] = sin(70 * n * self.dt)
+                    self.u[n, i_source, j_source] = sin(70 * n * self.dt)
 
             if n * self.dt >= 1.5:
-                u[n] = np.where(self.coeur, u[2 * int(1.5 / self.dt) - n], u[n])
+                self.u[n] = np.where(
+                    self.coeur, self.u[2 * int(1.5 / self.dt) - n], self.u[n]
+                )
 
         print("\ndone")
 
+    def save(self):
         print("Saving...")
-        np.savez_compressed("./wave/" + self.para_string, u=u)
+        np.savez_compressed("./wave/" + self.para_string, u=self.u)
         print("done")
 
-    def render(self) -> None:
-        u = np.load("./wave/" + self.para_string + ".npz")["u"]
+    def render(self,render_only) -> None:
+        
+        u=self.u if not render_only else np.load("./wave/" + self.para_string + ".npz")["u"]
 
         fps = 40
         render_time = self.T  # temps de rendu
@@ -183,4 +190,4 @@ class Onde:
         print("\ndone")
 
 
-onde = Onde()
+onde = Onde(save_data=False, render_only=False)
