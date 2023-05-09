@@ -6,8 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 
-
-def laplacian(u_t,dl):
+def laplacian(u_t, dl):
     Lap_kernel = 0.5 * np.array(
         [
             [0.5, 1, 0.5],
@@ -17,6 +16,7 @@ def laplacian(u_t,dl):
     )
     Lap_u = fftconvolve(u_t, Lap_kernel, mode="same") / dl**2
     return Lap_u
+
 
 class Onde:
     Lx, Ly = 4, 3  # Largeur, longueur (m)
@@ -29,18 +29,19 @@ class Onde:
 
     def __init__(self) -> None:
         self.discretize()
-        self.create_capteur()
+        self.create_capteurs()
+        self.create_sources()
         self.emulate()
         self.render()
 
     def discretize(self):
-        self.dl = min(self.Lx, self.Ly) / (
-            self.N_point - 1
-        )  # Distance `dl` entre chaque point de l'espace. -1 car le (0;0) est pris en compte dans `N_point`
+        # Distance `dl` entre chaque point de l'espace. -1 car le (0;0) est pris en compte dans `N_point`
+        self.dl = min(self.Lx, self.Ly) / (self.N_point - 1)
         self.Nx, self.Ny = [int(L / self.dl) + 1 for L in (self.Lx, self.Ly)]
-        self.Lx, self.Ly = (self.Nx - 1) * self.dl, (
-            self.Ny - 1
-        ) * self.dl  # Recalcul des longueurs de effectives l'espace à partir des nouveaux nombres de points
+
+        # Recalcul des longueurs de effectives l'espace à partir des nouveaux nombres de points
+        self.Lx, self.Ly = (self.Nx - 1) * self.dl, (self.Ny - 1) * self.dl
+
         self.X, self.Y = [
             grid.T
             for grid in np.meshgrid(
@@ -48,17 +49,14 @@ class Onde:
             )
         ]
 
-        # Paramètres de simulation
         self.dt = self.T / (self.Nt - 1)  # Pas de temps (s)
-        self.N_absorb = int(
-            self.L_absorb / self.dl
-        )  # Nombre de points absorbants aux bords
+        # Nombre de points absorbants aux bords
+        self.N_absorb = int(self.L_absorb / self.dl)
 
         # Chaîne de caractères pour le nom du fichier
         self.para_string = f"c={self.c}, T={self.T}, Nt={self.Nt}, N_point={self.N_point}, Lx={self.Lx}, Ly={self.Ly}, α={self.α_max}, n_absorb={self.N_absorb}"
 
     def create_capteur(self):
-        # para de capteur
         width = 0.001
         a, b = 2, 1.5
         coeur_size = 0.8
@@ -68,7 +66,8 @@ class Onde:
         self.coeur = (coeur_fun <= coeur_size + width) & (
             coeur_fun >= coeur_size - width
         )
-        # para de source
+
+    def create_sources(self):
         source_coordonnées = np.array(
             [
                 [1, 1.2],
@@ -76,7 +75,6 @@ class Onde:
             ]
         )
         self.source_indices = np.rint(source_coordonnées / self.dl).astype(int)
-
 
     def emulate(self):
         u_extended = np.zeros(
@@ -106,7 +104,7 @@ class Onde:
                 )
                 t0 = t1
 
-            Lap_u = laplacian(u_extended[n - 1],self.dl)
+            Lap_u = laplacian(u_extended[n - 1], self.dl)
             if n >= 2:
                 u_extended[n] = (
                     self.dt**2
@@ -125,8 +123,6 @@ class Onde:
             if n * self.dt >= 1.5:
                 u[n] = np.where(self.coeur, u[2 * int(1.5 / self.dt) - n], u[n])
 
-            # print(u[n, 56, 158])
-
         print("\ndone")
 
         print("Saving...")
@@ -138,8 +134,9 @@ class Onde:
 
         fps = 40
         render_time = self.T  # temps de rendu
-        render_speed = 0.3
+
         # 1 seconde du temps réel correspond à combien seconde du temps de rendu
+        render_speed = 0.3
 
         N_frame = int(fps * render_time / render_speed)
 
