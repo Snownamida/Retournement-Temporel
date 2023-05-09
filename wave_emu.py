@@ -135,9 +135,11 @@ class Onde:
         np.savez_compressed("./wave/" + self.para_string, u=self.u)
         print("done")
 
-    def render(self,render_only) -> None:
-        
-        u=self.u if not render_only else np.load("./wave/" + self.para_string + ".npz")["u"]
+    def render(self, render_only) -> None:
+        if render_only:
+            u = np.load("./wave/" + self.para_string + ".npz")["u"]
+        else:
+            u = self.u
 
         fps = 40
         render_time = self.T  # temps de rendu
