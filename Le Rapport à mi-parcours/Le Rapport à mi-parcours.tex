@@ -1,0 +1,136 @@
+%préambule, permet de faire les réglages
+
+%utilisation du modèle "article"
+\documentclass[11pt, a4paper]{article}
+
+%Dimension de la page
+%\usepackage[cm]{fullpage}
+\usepackage[vmargin=2cm,hmargin=2cm]{geometry}
+
+%Remplissage lipsum
+\usepackage{lipsum} 
+
+%permet l'utilisation des caractères accentués
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+
+%pour insérer des images 
+\usepackage{graphicx}
+
+%pour les formules mathématiques
+\usepackage{amsmath, amsfonts}
+\usepackage{amssymb, amsthm}
+
+%typographie française
+\usepackage[french]{babel}
+
+%pour dessiner avec Latex
+\usepackage{tikz}
+
+%pour écrire les unités
+\usepackage{siunitx}
+
+%pour les en-têtes et pieds de page personnalisés (à gauche L, au centre C et à droite R)
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhead[L]{\includegraphics[scale=0.2]{insa.pdf} } %pour avoir le logo de l'insa à gauche (L), le fichier insa.pdf doit se trouver dans le même dossier que le fichier tex. 
+\fancyhead[C]{Le rapport à mi-parcours : Retournement Temporel} % peut permettre d'indiquer un titre court au centre (C)
+\fancyhead[R]{} % peut permettre d'indiquer le nom de l'auteur (R)
+\renewcommand\headrulewidth{2pt}
+\fancyfoot[C]{Page \thepage} % pour insérer le numéro de la page
+\fancyfoot[R]{le : \date{\today}} % pour insérer la date  à droite (R)
+
+%si l'on souhaite retirer l'une ou l'autre des parties des pieds de page ou en-tête, il suffit de "commenter" la ligne en ajoutant un signe pourcentage devant cette ligne. 
+
+\usepackage{fancybox}% pour encadrer quelques mots à l'aide de la commande \fbox
+
+\title{Le rapport à mi-parcours : Retournement Temporel}
+\author{SUN Jixiang, ROSART Vittore, LU Zuoying, ZHANG Lizhi}
+\date{\today}
+
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+
+
+Introduction
+
+\section{Démarche scientifique et les méthodes numériques}
+Le retournement temporel est une technique complexe alors sa simulation comporte plusieurs étapes. Tout d'abord il a fallu l'exprimer en langage mathématique : il s'agit d'écrire l'équation à résoudre et les conditions initiales ou les conditions exigées. Ensuite on réalise la simulation des ondes, avant de mettre en place les capteurs. Pendant cette étape, nous avons rencontré le problème de réflexion au bord de la zone de simulation, et avons alors inséré une zone d'absorption en dehors de la zone de simulation pour résoudre ce problème. Enfin, nous avons ajouté dans notre simulateur les codes faisant réémettre les ondes enregistrées par les capteurs au cours de la simulation.
+\subsection{Expression mathématique}
+Comme le retournement temporel peut être appliqué aux ondes acoustiques, aux vagues, aux ondes électromagnétiques et tout autre type d'onde, notre simulateur consiste en la résolution de l'équation des ondes, soit l'équation de d'Alembert : $\ddot{u}=c^2\Delta u $ où $u$ est la fonction d'onde, $c$ la vitesse de propagation et $\Delta$ l'opérateur laplacien.
+
+Cette formule est vraie pour tous les points dans l'espace de propagation qui ne sont pas des sources, c'est-à-dire :
+
+$$
+    \forall (t,\vec{r})\in ([0,T]\times\mathbb{R}^2)\backslash\bigcup\limits_{k\in sources}[t_{i_k},t_{f_k}]\times\{\vec{r}_k\}
+$$
+
+Noter que du fait de la présence des sources, nous n'avons pas affaire à un problème de Cauchy : des valeurs sont exigées au cours de la simulation en plus des conditions initiales. Dans ce cas, nous ne pouvons plus utiliser sol\_ivp, et sommes dans l'obligation de coder le schéma à la main.
+
+Noter également que pour simplifier le problème et faciliter les calculs, nous nous sommes ramenés dans le cas de 2D, et l'expression de laplacien est alors $\Delta=\frac{\partial^2}{{\partial x}^2}+\frac{\partial^2}{{\partial y}^2}$.
+
+On introduit ensuite à un ou plusieurs points dans l'espace les perturbations sinusoïdales ou non comme les sources d'onde. Cela étant, leurs fonctions en fonction de temps sont parfaitement connues. En posant la non présence des ondes à $t=0$, on a finalement:
+
+\begin{align*}
+     & \left\{
+    \begin{aligned}
+         & \ddot{u}(t,\vec{r})=c^2\Delta u(t,\vec{r})\ ,\ (t,\vec{r})\in ([0,T]\times\mathbb{R}^2)\backslash\bigcup\limits_{k\in sources}[t_{i_k},t_{f_k}]\times\{\vec{r}_k\} \\
+         & u(t,\vec{r})=f_k(t,\vec{r})\ ,\ (t,\vec{r})\in\bigcup\limits_{k\in sources}[t_{i_k},t_{f_k}]\times\{\vec{r}_k\}                                                    \\
+         & u(0,\vec{r})=0\ ,\ \forall\vec{r}\in\mathbb{R}^2                                                                                                                   \\
+    \end{aligned}
+    \right.
+\end{align*}
+
+\subsection{Approche numérique}
+Afin de trouver la solution numérique de l'équation des ondes, nous utilisons la méthode de différence finie, avec une discrétisation de l'espace et du temps. Le temps est divisé en pas de $dt$, l'espace en pas de $dl=dx=dy$. Cette normalisation permet l'utilisation de la convolution pour le calcul laplacien que nous détaillerons après.
+
+L'équation des ondes étant une équation d'ordre 2 et ne dépendant pas de la dérivée du premier ordre, nous avons choisi le schéma explicite de Verlet à deux pas. **formule**. Il permet un calcul rapide et est facile à implémenter mais moins précis (c'est un schéma instable). Par la suite, nous souhaitons implémenter un schéma implicite et stable.
+
+Nous avons remarqué que le calcul laplacien par la différence finie peut être réalisé par la convolution, dont l'algorithme est présent dans plusieurs librairies mathématiques. L'utilisation de ces librairies existantes permet d'améliorer considérablement la vitesse de simulation, puisque leurs algorithmes contiennent des astuces  pour accélérer le calcul, comme FFT (Transformation de Fourier rapide) dans fftconvolve, la fonction que nous avons choisie dans Scipy. De plus, ces librairies sont codées en C ou Fortran qui sont plus rapides que Python.
+
+\subsection{Problème de réflexion}
+Pendant la simulation, nous avons néanmoins fait face à un grand problème : nous souhaitons que les ondes se propagent à l'infini sans revenir, cela exige alors une zone de simulation infiniment grande qui n'est pas possible. Cependant, si on se restreint à une zone finie, il y aura la réflexion des ondes sur les bords. Ce phénomène est dû au calcul du laplacien en un point : il utilise les valeurs des points adjacents, or ces derniers ne sont pas définis pour les points en bordure de l'espace. Nous avons donc essayé 3 méthodes différentes pour régler ce problème :
+
+\begin{enumerate}
+    \item Remplir les bords par zéros.
+    \item Remplir les bords par les valeurs identiques que celles des points à l'intérieur
+    \item Utiliser la dérivé décentrée (à droite ou à gauche) au lieu de la dérivé centrée pour éviter l'utilisation les valeurs à l'extérieur de la zone de simulation.
+\end{enumerate}
+Mais aucune de ces trois méthodes fonctionne, il y toujours de réflexion sur le bord. Pour la première solution, on voit bien pourquoi : les zéros remplis au bord sont comme une condition de bord qui exige une impédance nulle du milieu, cela entraine la réflexion totale.
+
+Après ces tentatives infructueuses, nous avons tourné notre regard vers une nouvelle méthode : l'amortissement. Comme dans le cas de la pendule, si on introduit un terme de « frottement » proportionnel à la dérivée de premier ordre mais de signe opposé, l'onde sera amortie jusqu'à l'évanouissement total :
+
+$$
+    \ddot{u}=c^2\Delta u - \alpha\dot{u}
+$$
+
+Au-delà de notre zone de simulation originale, nous plaçons alors une zone d'absorption avec un coefficient d'amortissement croissant à mesure que l'on s'éloigne de la zone de simulation. Cette méthode donne un résultat excellent, et si on ne regarde que la zone de simulation, elle se comporte comme il n'y avait pas de bord.
+
+**image**
+
+\subsection{Capteurs}
+La simulation des capteurs et la réémission des ondes ne sont pas difficile à réaliser, il suffit d'exiger les valeurs à la position des capteurs comme nous faisions pour les sources d'ondes. Les ondes réémises se refocalisent comme prévu à la position des sources. Le résultat est très satisfaisant.
+
+Pour l'instant, on ne peut que « voir » la refocalisation des ondes, mais nous voulons désormais écrire un algorithme qui détecte automatiquement leurs positions. Cela permettra de comparer quantitativement la différence entre la position de la source et celle refocalisée.
+
+\section{Objectifs à venir}
+\begin{itemize}
+    \item Implémenter une méthode de résolution en temporel du modèle d'équations d'ondes acoustiques à l'aide de la méthode des différences finies.
+    \item Développer un simulateur 2D de retournement temporel pour la reconstruction de sources initiales à partir de données collectées par des capteurs.
+    \item Tester et valider le simulateur en simulant des données puis en appliquant le retournement temporel pour reconstruire la source initiale.
+    \item Étudier les effets des conditions aux bords du domaine de simulation et l'influence des paramètres des capteurs (nombre, position, etc.).
+    \item Identifier les paramètres physiques des équations d'ondes utilisées pour la simulation et la reconstruction de la source initiale.
+    \item Développer des méthodes pour améliorer la précision et la résolution de la reconstruction de la source initiale à partir des données collectées.
+    \item Appliquer le simulateur à la reconstruction d'un message caché dans une source initiale à partir de données collectées par des capteurs.
+    \item Comparer les résultats obtenus avec les résultats attendus pour évaluer les performances du simulateur de retournement temporel.
+    \item Présenter les résultats obtenus sous forme de rapport et/ou de présentation orale.
+    \item Discuter les limites et les perspectives d'amélioration du simulateur de retournement temporel développé.
+\end{itemize}
+\section{Critique}
+\section{Bibliographie}
+
+
+
+\end{document}
