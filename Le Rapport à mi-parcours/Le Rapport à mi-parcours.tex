@@ -182,7 +182,30 @@ Pour l'instant, on ne peut que « voir » la refocalisation des ondes, mais nous
     \item Présenter les résultats obtenus sous forme de rapport et/ou de présentation orale.
     \item Discuter les limites et les perspectives d'amélioration du simulateur de retournement temporel développé.
 \end{itemize}
+
 \section{Critique}
+
+Notre modèle se base sur plusieurs simplifications : 
+
+\begin{itemize}
+    \item Nous considérons pour l'instant que le milieu est parfait et linéaire, et ne correspond donc pas à ce que l'on trouve en condition réels (milieux réels) et dans les applications en médecine ou géologie (milieux non-linéaires) ; ce qui rend notre simulateur moins pertinent. 
+
+    \item Dans le cas du retournement instantané (simplification de l'expérience voir **hyperlien**), nous pouvons contrôler parfaitement les propriétés du milieu. 
+
+    \item Pour le retournement informatique, les transducteurs sont parfaits, et hors erreurs de calcul informatique, ils restituent parfaitement le signal. 
+
+    \item Nous utilisons (pour l'instant) un schéma peu-stable 
+
+    \item Nous n'avons pas clarifié et détaillé le code, il n'est pas vraiment utilisable en l'état par une tierce personne. 
+\end{itemize}
+  
+
+De plus, nous n'avons pas réalisé d'analyse qualitative des résultats, et si le signal retourné correspond visuellement à ce que l'on attend, nous ne l'avons pas analysé et comparé avec le signal initial. 
+
+De la même manière, nous n'avons pas encore comparé nos résultats avec des exemples réels. Bien qu'ils semblent correspondre à la théorie, ils ne doivent pas (encore) être considérés comme fiables et exploitables. 
+
+Enfin, nous avons encore à réaliser des tests pour quantifier l'ampleur de l'impact des paramètres de simulation sur nos résultats. 
+
 \section{Bibliographie}
 
 
