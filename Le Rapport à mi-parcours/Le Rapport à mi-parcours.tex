@@ -108,12 +108,66 @@ $$
 
 Au-delà de notre zone de simulation originale, nous plaçons alors une zone d'absorption avec un coefficient d'amortissement croissant à mesure que l'on s'éloigne de la zone de simulation. Cette méthode donne un résultat excellent, et si on ne regarde que la zone de simulation, elle se comporte comme il n'y avait pas de bord.
 
-**image**
+\begin{figure}[htbp]
+    \centering
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/réflexion.png}
+        \caption{la réflexion sur le bord}
+        \label{réflexion}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/absorption.png}
+        \caption{l'effet de mise en place de la zone d'absorption}
+        \label{absorption}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/bien.png}
+        \caption{à l'intérieur de la la zone d'absorption, nous obtenons la simulation sans réflexion}
+        \label{bien}
+    \end{minipage}
+\end{figure}
 
 \subsection{Capteurs}
 La simulation des capteurs et la réémission des ondes ne sont pas difficiles à réaliser, il suffit d'exiger les valeurs à la position des capteurs comme nous faisions pour les sources d'ondes. Les ondes réémises se refocalisent comme prévu à la position des sources. Le résultat est très satisfaisant.
 
+\begin{figure}[htbp]
+    \centering
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/onde1.png}
+        \caption{les ondes issues des sources se propagent}
+        \label{onde1}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/onde2.png}
+        \caption{les capteurs de la forme du coeur commencent à réémettre les ondes}
+        \label{onde2}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/onde3.png}
+        \caption{les ondes réémises se propagent}
+        \label{onde3}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/onde4.png}
+        \caption{les ondes réémises se refocalisent à position des sources}
+        \label{onde4}
+    \end{minipage}
+\end{figure}
+
 Pour l'instant, on ne peut que « voir » la refocalisation des ondes, mais nous voulons désormais écrire un algorithme qui détecte automatiquement leurs positions. Cela permettra de comparer quantitativement la différence entre la position de la source et celle refocalisée.
+
 
 \section{Objectifs à venir}
 \begin{itemize}
