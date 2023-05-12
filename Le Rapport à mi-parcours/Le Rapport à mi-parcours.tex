@@ -70,7 +70,7 @@ $$
     \forall (t,\vec{r})\in ([0,T]\times\mathbb{R}^2)\backslash\bigcup\limits_{k\in sources}[t_{i_k},t_{f_k}]\times\{\vec{r}_k\}
 $$
 
-Noter que du fait de la présence des sources, nous n'avons pas affaire à un problème de Cauchy : des valeurs sont exigées au cours de la simulation en plus des conditions initiales. Dans ce cas, nous ne pouvons plus utiliser sol\_ivp, et sommes dans l'obligation de coder le schéma à la main.
+Noter que du fait de la présence des sources, nous n'avons pas affaire à un problème de Cauchy : des valeurs sont exigées au cours de la simulation en plus des conditions initiales. Dans ce cas, nous ne pouvons plus utiliser solve\_ivp, et sommes dans l'obligation de coder le schéma à la main.
 
 Noter également que pour simplifier le problème et faciliter les calculs, nous nous sommes ramenés dans le cas de 2D, et l'expression de laplacien est alors $\Delta=\frac{\partial^2}{{\partial x}^2}+\frac{\partial^2}{{\partial y}^2}$.
 
