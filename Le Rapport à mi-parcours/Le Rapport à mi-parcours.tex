@@ -32,6 +32,9 @@
 
 %pour les en-têtes et pieds de page personnalisés (à gauche L, au centre C et à droite R)
 \usepackage{fancyhdr}
+
+\usepackage[colorlinks,linkcolor=blue]{hyperref} % pour les liens hypertextes, et pour les références croisées (table des matières, figures, équations, etc.)
+
 \pagestyle{fancy}
 \fancyhead[L]{\includegraphics[scale=0.2]{insa.pdf} } %pour avoir le logo de l'insa à gauche (L), le fichier insa.pdf doit se trouver dans le même dossier que le fichier tex. 
 \fancyhead[C]{Rapport de mi-parcours : Retournement Temporel} % peut permettre d'indiquer un titre court au centre (C)
@@ -209,11 +212,11 @@ Enfin, nous avons encore à réaliser des tests pour quantifier l'ampleur de l'i
 
 \begin{thebibliography}{99}  
 
-    \bibitem{ref1}EDDI E., FORT E., Miroirs temporels instantanés : une nouvelle approche du retournement temporel ; Reflets de la physique, 2021, n°69, pp. 28-33. n°6°69, 2021. 
+    \bibitem{ref1}EDDI E., FORT E., \href{https://www.refletsdelaphysique.fr/articles/refdp/abs/2021/02/refdp202169p28/refdp202169p28.html}{Miroirs temporels instantanés : une nouvelle approche du retournement temporel} ; Reflets de la physique, 2021, n°69, pp. 28-33. n°6°69, 2021.
 
-    \bibitem{ref2}IRT Saint Exupéry, Mathias Fink, Miroirs à retournement temporel et innovation par Mathias Fink [Youtube], 2015. 
+    \bibitem{ref2}IRT Saint Exupéry, Mathias Fink, \href{https://www.youtube.com/watch?v=apJ06fHDojs}{Miroirs à retournement temporel et innovation par Mathias Fink}, 2015. 
     
-    \bibitem{ref3}MATHIAS F., Ondes et renversement du temps ; Bulletin de l'Union des Professeurs de Physique et de Chimie, 2005, n°875, pp.25-32. 
+    \bibitem{ref3}MATHIAS F., \href{https://uma.ensta-paris.fr/conf/tipe/2006/talks/TRM-Fink-final-UDP.pdf}{Ondes et renversement du temps} ; Bulletin de l'Union des Professeurs de Physique et de Chimie, 2005, n°875, pp.25-32. 
     
     \bibitem{ref4}Erik H. Saenger \& Georg Karl Kocur \& Roman Jud \& Manuel Torrilhon. Application of time reverse modeling on ultrasonic non-destructive testing of concrete Applied Mathematical Modelling Volume 35, Issue 2, February 2011, Pages 807-816 
     
