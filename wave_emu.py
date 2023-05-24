@@ -142,21 +142,25 @@ class Onde:
                     - u_extended[n - 2]
                 )
 
-            T_source = 0.1
+            T_source = 0.05
             if n * self.dt <= T_source:
                 for i_source, j_source in self.source_indices:
-                    self.u[n, i_source, j_source] = 0.5*sin(2 * pi / T_source * n * self.dt)
+                    self.u[n, i_source, j_source] = 0.5 * sin(
+                        pi / T_source * n * self.dt
+                    )
 
             T_emission = 2
-            if n * self.dt >= T_emission:
+            n_emission = int(T_emission / self.dt)
+            self.u[n_emission - 2 : n_emission] = 0
+            if n >= n_emission:
                 self.u[n] -= (
                     130
                     * self.dt
                     * np.where(
                         self.coeur,
                         (
-                            self.u[2 * int(T_emission / self.dt) - n]
-                            - self.u[2 * int(T_emission / self.dt) - n - 1]
+                            self.u[2 * n_emission - n - 3]
+                            - self.u[2 * n_emission - n - 4]
                         ),
                         0,
                     )
