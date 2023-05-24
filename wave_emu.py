@@ -17,20 +17,27 @@ def laplacian(u_t, dl):
     Lap_u = fftconvolve(u_t, Lap_kernel, mode="same") / dl**2
     return Lap_u
 
+
 def laplacian_mat(u_t, dl):
     Nx, Ny = u_t.shape
-    N=Nx*Ny
-    y=u_t.flatten()
-    L=-4*np.diag(np.ones(N),0)+np.diag(np.ones(N-1),1)+np.diag(np.ones(N-1),-1)+np.diag(np.ones(N-Ny),Ny)+np.diag(np.ones(N-Ny),-Ny)
-    return (L@y/dl**2).reshape(Nx,Ny)
+    N = Nx * Ny
+    y = u_t.flatten()
+    L = (
+        -4 * np.diag(np.ones(N), 0)
+        + np.diag(np.ones(N - 1), 1)
+        + np.diag(np.ones(N - 1), -1)
+        + np.diag(np.ones(N - Ny), Ny)
+        + np.diag(np.ones(N - Ny), -Ny)
+    )
+    return (L @ y / dl**2).reshape(Nx, Ny)
 
 
 class Onde:
     Lx, Ly = 4, 3  # Largeur, longueur (m)
     N_point = 401  # Nombre de points minimum selon x ou y
     c = 1.5  # Vitesse de propagation des ondes dans le milieu (m/s)
-    T = 0.5  # Temps final de simulation (s)
-    Nt = 156  # Nombre d'itérations
+    T = 6  # Temps final de simulation (s)
+    Nt = 3001  # Nombre d'itérations
     α_max = 20  # Coefficient d'amortissement
     L_absorb = 1
 
@@ -67,7 +74,7 @@ class Onde:
         self.para_string = f"c={self.c}, T={self.T}, Nt={self.Nt}, N_point={self.N_point}, Lx={self.Lx}, Ly={self.Ly}, α={self.α_max}, n_absorb={self.N_absorb}"
 
     def create_capteurs(self):
-        width = 0.001
+        width = 0.01
         a, b = 2, 1.5
         coeur_size = 0.8
         coeur_fun = ((self.X - a) / 1.3) ** 2 + (
@@ -80,7 +87,6 @@ class Onde:
     def create_sources(self):
         source_coordonnées = np.array(
             [
-                [1, 1.2],
                 [2, 2.2],
             ]
         )
@@ -130,9 +136,20 @@ class Onde:
                 for i_source, j_source in self.source_indices:
                     self.u[n, i_source, j_source] = sin(70 * n * self.dt)
 
-            if n * self.dt >= 1.5:
-                self.u[n] = np.where(
-                    self.coeur, self.u[2 * int(1.5 / self.dt) - n], self.u[n]
+            T_emission = 2
+            if n * self.dt >= T_emission:
+                self.u[n] += (
+                    1
+                    / self.dl
+                    * self.dt
+                    * np.where(
+                        self.coeur,
+                        (
+                            self.u[2 * int(T_emission / self.dt) - n]
+                            - self.u[2 * int(T_emission / self.dt) - n - 1]
+                        ),
+                        0,
+                    )
                 )
 
         print("\ndone")
