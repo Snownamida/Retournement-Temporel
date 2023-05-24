@@ -151,7 +151,7 @@ class Onde:
 
             T_emission = 2
             n_emission = int(T_emission / self.dt)
-            self.u[n_emission - 2 : n_emission] = 0
+            u_extended[n_emission - 2 : n_emission] = 0
             if n >= n_emission:
                 self.u[n] -= (
                     130
