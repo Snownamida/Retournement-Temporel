@@ -17,13 +17,20 @@ def laplacian(u_t, dl):
     Lap_u = fftconvolve(u_t, Lap_kernel, mode="same") / dl**2
     return Lap_u
 
+def laplacian_mat(u_t, dl):
+    Nx, Ny = u_t.shape
+    N=Nx*Ny
+    y=u_t.flatten()
+    L=-4*np.diag(np.ones(N),0)+np.diag(np.ones(N-1),1)+np.diag(np.ones(N-1),-1)+np.diag(np.ones(N-Ny),Ny)+np.diag(np.ones(N-Ny),-Ny)
+    return (L@y/dl**2).reshape(Nx,Ny)
+
 
 class Onde:
     Lx, Ly = 4, 3  # Largeur, longueur (m)
     N_point = 401  # Nombre de points minimum selon x ou y
     c = 1.5  # Vitesse de propagation des ondes dans le milieu (m/s)
-    T = 4  # Temps final de simulation (s)
-    Nt = 1001  # Nombre d'itérations
+    T = 0.5  # Temps final de simulation (s)
+    Nt = 156  # Nombre d'itérations
     α_max = 20  # Coefficient d'amortissement
     L_absorb = 1
 
