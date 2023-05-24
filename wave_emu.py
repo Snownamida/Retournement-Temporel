@@ -73,7 +73,7 @@ class Onde:
         # Chaîne de caractères pour le nom du fichier
         self.para_string = f"c={self.c}, T={self.T}, Nt={self.Nt}, N_point={self.N_point}, Lx={self.Lx}, Ly={self.Ly}, α={self.α_max}, n_absorb={self.N_absorb}"
 
-    def create_capteurs(self):
+    def create_capteurs_coeur(self):
         width = 0.01
         a, b = 2, 1.5
         coeur_size = 0.8
@@ -84,10 +84,20 @@ class Onde:
             coeur_fun >= coeur_size - width
         )
 
+    def create_capteurs(self):
+        width = 0.01
+        a, b = 2, 1.5
+        coeur_size = 0.8
+        coeur_fun = ((self.X - a) ** 2 + (self.Y - b) ** 2) ** 0.5
+        self.coeur = (coeur_fun <= coeur_size + width) & (
+            coeur_fun >= coeur_size - width
+        )
+
     def create_sources(self):
         source_coordonnées = np.array(
             [
                 [2, 2.2],
+                [1.9, 2],
             ]
         )
         self.source_indices = np.rint(source_coordonnées / self.dl).astype(int)
@@ -132,15 +142,14 @@ class Onde:
                     - u_extended[n - 2]
                 )
 
-            if n * self.dt <= 2 * pi / 70:
+            if n * self.dt <= 1 * pi / 70:
                 for i_source, j_source in self.source_indices:
-                    self.u[n, i_source, j_source] = sin(70 * n * self.dt)
+                    self.u[n, i_source, j_source] = sin(50 * n * self.dt)
 
             T_emission = 2
             if n * self.dt >= T_emission:
                 self.u[n] += (
-                    1
-                    / self.dl
+                    130
                     * self.dt
                     * np.where(
                         self.coeur,
