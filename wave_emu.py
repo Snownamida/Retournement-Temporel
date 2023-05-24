@@ -37,7 +37,7 @@ class Onde:
     N_point = 401  # Nombre de points minimum selon x ou y
     c = 1.5  # Vitesse de propagation des ondes dans le milieu (m/s)
     T = 6  # Temps final de simulation (s)
-    Nt = 3001  # Nombre d'itérations
+    Nt = 2001  # Nombre d'itérations
     α_max = 20  # Coefficient d'amortissement
     L_absorb = 1
 
@@ -85,9 +85,9 @@ class Onde:
         )
 
     def create_capteurs(self):
-        width = 0.01
+        width = 0.005
         a, b = 2, 1.5
-        coeur_size = 0.8
+        coeur_size = 1.4
         coeur_fun = ((self.X - a) ** 2 + (self.Y - b) ** 2) ** 0.5
         self.coeur = (coeur_fun <= coeur_size + width) & (
             coeur_fun >= coeur_size - width
@@ -96,8 +96,8 @@ class Onde:
     def create_sources(self):
         source_coordonnées = np.array(
             [
-                [2, 2.2],
-                [1.9, 2],
+                [1.9, 2.2],
+                [2.5, 1],
             ]
         )
         self.source_indices = np.rint(source_coordonnées / self.dl).astype(int)
@@ -142,13 +142,14 @@ class Onde:
                     - u_extended[n - 2]
                 )
 
-            if n * self.dt <= 1 * pi / 70:
+            T_source = 0.1
+            if n * self.dt <= T_source:
                 for i_source, j_source in self.source_indices:
-                    self.u[n, i_source, j_source] = sin(50 * n * self.dt)
+                    self.u[n, i_source, j_source] = 0.5*sin(2 * pi / T_source * n * self.dt)
 
             T_emission = 2
             if n * self.dt >= T_emission:
-                self.u[n] += (
+                self.u[n] -= (
                     130
                     * self.dt
                     * np.where(
