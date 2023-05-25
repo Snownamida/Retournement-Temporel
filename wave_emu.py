@@ -197,15 +197,15 @@ class Onde:
         else:
             u = self.u
 
-        fps = 40
+        fps = 30
         render_time = self.T  # temps de rendu
 
         # 1 seconde du temps réel correspond à combien seconde du temps de rendu
-        render_speed = 0.3
+        render_speed = 0.5
 
         N_frame = int(fps * render_time / render_speed)
 
-        fig, ax = plt.subplots(figsize=(16, 9))
+        fig, ax = plt.subplots(figsize=(8, 4.5))
         ax.set_xlim([0, self.Lx])
         ax.set_ylim([0, self.Ly])
         ax.set_xlabel("x")
