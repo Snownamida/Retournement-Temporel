@@ -7,14 +7,16 @@ import matplotlib.animation as animation
 
 
 def laplacian(u_t, dl):
-    Lap_kernel = 0.5 * np.array(
+    Lap_kernel = np.array(
         [
-            [0.5, 1, 0.5],
-            [1, -6, 1],
-            [0.5, 1, 0.5],
+            [0, 0, -1, 0, 0],
+            [0, 0, 16, 0, 0],
+            [-1, 16, -60, 16, -1],
+            [0, 0, 16, 0, 0],
+            [0, 0, -1, 0, 0],
         ]
     )
-    Lap_u = fftconvolve(u_t, Lap_kernel, mode="same") / dl**2
+    Lap_u = fftconvolve(u_t, Lap_kernel, mode="same") / (12 * dl**2)
     return Lap_u
 
 
@@ -45,6 +47,7 @@ class Onde:
         self.discretize()
         self.create_capteurs()
         self.create_sources()
+        self.create_simzone()
         if not render_only:
             self.emulate()
         if save_data:
@@ -102,20 +105,29 @@ class Onde:
         )
         self.source_indices = np.rint(source_coordonnées / self.dl).astype(int)
 
-    def emulate(self):
-        u_extended = np.zeros(
+    def create_simzone(self):
+        self.u_extended = np.zeros(
             [self.Nt, self.Nx + 2 * self.N_absorb, self.Ny + 2 * self.N_absorb]
         )
-        self.u = u_extended[
+        self.u = self.u_extended[
             :, self.N_absorb : -self.N_absorb, self.N_absorb : -self.N_absorb
         ]
-        α = np.zeros_like(u_extended[0])
+        self.α = np.zeros_like(self.u_extended[0])
 
-        α[0 : self.N_absorb] += np.linspace(self.α_max, 0, self.N_absorb)[:, None]
-        α[-self.N_absorb :] += np.linspace(0, self.α_max, self.N_absorb)[:, None]
-        α[:, 0 : self.N_absorb] += np.linspace(self.α_max, 0, self.N_absorb)
-        α[:, -self.N_absorb :] += np.linspace(0, self.α_max, self.N_absorb)
+        self.α[0 : self.N_absorb] += np.linspace(self.α_max, 0, self.N_absorb)[:, None]
+        self.α[-self.N_absorb :] += np.linspace(0, self.α_max, self.N_absorb)[:, None]
+        self.α[:, 0 : self.N_absorb] += np.linspace(self.α_max, 0, self.N_absorb)
+        self.α[:, -self.N_absorb :] += np.linspace(0, self.α_max, self.N_absorb)
+        self.α = 0
 
+    def udotdot(self, n):
+        Lap_u = laplacian(self.u_extended[n], self.dl)
+        return (
+            self.c**2 * Lap_u
+            - self.α * (self.u_extended[n] - self.u_extended[n - 1]) / self.dt
+        )
+
+    def emulate(self):
         print(f"etimated size: {self.u.nbytes/1024**2:.2f} MB")
 
         print("Emulating...")
@@ -130,16 +142,11 @@ class Onde:
                 )
                 t0 = t1
 
-            Lap_u = laplacian(u_extended[n - 1], self.dl)
             if n >= 2:
-                u_extended[n] = (
-                    self.dt**2
-                    * (
-                        self.c**2 * Lap_u
-                        - α * (u_extended[n - 1] - u_extended[n - 2]) / self.dt
-                    )
-                    + 2 * u_extended[n - 1]
-                    - u_extended[n - 2]
+                self.u_extended[n] = (
+                    self.udotdot(n - 1) * self.dt**2
+                    + 2 * self.u_extended[n - 1]
+                    - self.u_extended[n - 2]
                 )
 
             T_source = 0.05
@@ -151,7 +158,7 @@ class Onde:
 
             T_emission = 2
             n_emission = int(T_emission / self.dt)
-            u_extended[n_emission - 2 : n_emission] = 0
+            self.u_extended[n_emission - 2 : n_emission] = 0
             if n >= n_emission:
                 self.u[n] -= (
                     130
@@ -177,7 +184,7 @@ class Onde:
         if render_only:
             u = np.load("./wave/" + self.para_string + ".npz")["u"]
         else:
-            u = self.u
+            u = self.u_extended
 
         fps = 40
         render_time = self.T  # temps de rendu
