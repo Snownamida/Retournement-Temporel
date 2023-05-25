@@ -7,7 +7,8 @@ import matplotlib.animation as animation
 
 
 def laplacian(u_t, dl):
-    Lap_kernel = np.array(
+    θ = 0.5
+    Lap_kernel_1 = np.array(
         [
             [0, 0, -1, 0, 0],
             [0, 0, 16, 0, 0],
@@ -15,8 +16,18 @@ def laplacian(u_t, dl):
             [0, 0, 16, 0, 0],
             [0, 0, -1, 0, 0],
         ]
-    )
-    Lap_u = fftconvolve(u_t, Lap_kernel, mode="same") / (12 * dl**2)
+    ) / (12 * dl**2)
+    Lap_kernel_2 = np.array(
+        [
+            [-1, 0, 0, 0, -1],
+            [0, 16, 0, 16, 0],
+            [0, 0, -60, 0, 0],
+            [0, 16, 0, 16, 0],
+            [-1, 0, 0, 0, -1],
+        ]
+    ) / (24 * dl**2)
+    Lap_kernel = θ * Lap_kernel_1 + (1 - θ) * Lap_kernel_2
+    Lap_u = fftconvolve(u_t, Lap_kernel, mode="same")
     return Lap_u
 
 
@@ -205,7 +216,7 @@ class Onde:
 
         N_frame = int(fps * render_time / render_speed)
 
-        fig, ax = plt.subplots(figsize=(8, 4.5))
+        fig, ax = plt.subplots(figsize=(7, 5))
         ax.set_xlim([0, self.Lx])
         ax.set_ylim([0, self.Ly])
         ax.set_xlabel("x")
