@@ -1,12 +1,13 @@
 import numpy as np
 from numpy import sin, cos, pi
 from scipy.signal import fftconvolve
+from scipy import sparse
 import time
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 
-def laplacian(u_t, dl):
+def laplacian_con(u_t, dl):
     θ = 0.5
     Lap_kernel_1 = np.array(
         [
@@ -31,17 +32,18 @@ def laplacian(u_t, dl):
     return Lap_u
 
 
-def laplacian_mat(u_t, dl):
+def laplacian(u_t, dl):
     Nx, Ny = u_t.shape
     N = Nx * Ny
     y = u_t.flatten()
-    L = (
-        -4 * np.diag(np.ones(N), 0)
-        + np.diag(np.ones(N - 1), 1)
-        + np.diag(np.ones(N - 1), -1)
-        + np.diag(np.ones(N - Ny), Ny)
-        + np.diag(np.ones(N - Ny), -Ny)
-    )
+    diagonals = [
+        -4 * np.ones(N),
+        np.ones(N - 1),
+        np.ones(N - 1),
+        np.ones(N - Ny),
+        np.ones(N - Ny),
+    ]
+    L = sparse.diags(diagonals, [0, 1, -1, Ny, -Ny])
     return (L @ y / dl**2).reshape(Nx, Ny)
 
 
