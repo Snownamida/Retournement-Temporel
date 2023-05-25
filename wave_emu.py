@@ -42,6 +42,7 @@ class Onde:
     Nt = 2001  # Nombre d'itérations
     α_max = 20  # Coefficient d'amortissement
     L_absorb = 1
+    T_emission = 2
 
     def __init__(self, save_data, render_only) -> None:
         self.discretize()
@@ -72,6 +73,8 @@ class Onde:
         self.dt = self.T / (self.Nt - 1)  # Pas de temps (s)
         # Nombre de points absorbants aux bords
         self.N_absorb = int(self.L_absorb / self.dl)
+
+        self.n_emission = int(self.T_emission / self.dt)
 
         # Chaîne de caractères pour le nom du fichier
         self.para_string = f"c={self.c}, T={self.T}, Nt={self.Nt}, N_point={self.N_point}, Lx={self.Lx}, Ly={self.Ly}, α={self.α_max}, n_absorb={self.N_absorb}"
@@ -112,20 +115,42 @@ class Onde:
         self.u = self.u_extended[
             :, self.N_absorb : -self.N_absorb, self.N_absorb : -self.N_absorb
         ]
-        self.α = np.zeros_like(self.u_extended[0])
-
-        self.α[0 : self.N_absorb] += np.linspace(self.α_max, 0, self.N_absorb)[:, None]
-        self.α[-self.N_absorb :] += np.linspace(0, self.α_max, self.N_absorb)[:, None]
-        self.α[:, 0 : self.N_absorb] += np.linspace(self.α_max, 0, self.N_absorb)
-        self.α[:, -self.N_absorb :] += np.linspace(0, self.α_max, self.N_absorb)
-        self.α = 0
+        self.α = np.pad(
+            np.zeros_like(self.u[0]),
+            self.N_absorb,
+            "linear_ramp",
+            end_values=self.α_max,
+        )
 
     def udotdot(self, n):
         Lap_u = laplacian(self.u_extended[n], self.dl)
-        return (
-            self.c**2 * Lap_u
-            - self.α * (self.u_extended[n] - self.u_extended[n - 1]) / self.dt
-        )
+        C = self.c**2 * Lap_u
+        A = -self.α * (self.u_extended[n] - self.u_extended[n - 1]) / self.dt
+
+        if self.n_emission <= n <= 2 * self.n_emission - 4:
+            S = (
+                -130
+                * np.where(
+                    self.coeur,
+                    (
+                        self.u[2 * self.n_emission - n - 3]
+                        - self.u[2 * self.n_emission - n - 4]
+                    ),
+                    0,
+                )
+                / self.dt
+            )
+
+            S = np.pad(
+                S,
+                self.N_absorb,
+                "constant",
+                constant_values=0,
+            )
+
+        else:
+            S = 0
+        return C + A + S
 
     def emulate(self):
         print(f"etimated size: {self.u.nbytes/1024**2:.2f} MB")
@@ -133,14 +158,17 @@ class Onde:
         print("Emulating...")
         t0 = time.time()
         for n in range(self.Nt):
-            if not n % 10:
+            if not n % 20:
                 t1 = time.time()
                 print(
-                    f"\r{n}/{self.Nt} le temps reste estimé : {(self.Nt-n)*(t1-t0)/10:.2f} s",
+                    f"\r{n}/{self.Nt} le temps reste estimé : {(self.Nt-n)*(t1-t0)/20:.2f} s",
                     end="",
                     flush=True,
                 )
                 t0 = t1
+
+            if n in (self.n_emission - 2, self.n_emission - 1):
+                continue
 
             if n >= 2:
                 self.u_extended[n] = (
@@ -156,23 +184,6 @@ class Onde:
                         pi / T_source * n * self.dt
                     )
 
-            T_emission = 2
-            n_emission = int(T_emission / self.dt)
-            self.u_extended[n_emission - 2 : n_emission] = 0
-            if n >= n_emission:
-                self.u[n] -= (
-                    130
-                    * self.dt
-                    * np.where(
-                        self.coeur,
-                        (
-                            self.u[2 * n_emission - n - 3]
-                            - self.u[2 * n_emission - n - 4]
-                        ),
-                        0,
-                    )
-                )
-
         print("\ndone")
 
     def save(self):
@@ -184,7 +195,7 @@ class Onde:
         if render_only:
             u = np.load("./wave/" + self.para_string + ".npz")["u"]
         else:
-            u = self.u_extended
+            u = self.u
 
         fps = 40
         render_time = self.T  # temps de rendu
