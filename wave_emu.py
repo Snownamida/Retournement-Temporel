@@ -26,13 +26,17 @@ def laplacian_mat(u_t, dl):
     Nx, Ny = u_t.shape
     N = Nx * Ny
     diagonals = [
-        -4 * np.ones(N),
-        np.ones(N - 1),
-        np.ones(N - 1),
-        np.ones(N - Ny),
-        np.ones(N - Ny),
+        -60 * np.ones(N),
+        16 * np.ones(N - 1),
+        16 * np.ones(N - 1),
+        16 * np.ones(N - Ny),
+        16 * np.ones(N - Ny),
+        -np.ones(N - 2),
+        -np.ones(N - 2),
+        -np.ones(N - 2 * Ny),
+        -np.ones(N - 2 * Ny),
     ]
-    Lap = sparse.diags(diagonals, [0, 1, -1, Ny, -Ny]) / dl**2
+    Lap = sparse.diags(diagonals, [0, 1, -1, Ny, -Ny, 2, -2, 2 * Ny, -2 * Ny]) / dl**2
     return (Lap @ u_t.flatten()).reshape(Nx, Ny)
 
 
@@ -126,7 +130,7 @@ class Onde:
         )
 
     def udotdot(self, n):
-        C = self.c**2 * laplacian_mat(self.u[n], self.dl)
+        C = self.c**2 * laplacian_con(self.u[n], self.dl)
         A = -self.α * (self.u[n] - self.u[n - 1]) / self.dt
 
         if self.n_emission <= n <= 2 * self.n_emission - 4:
@@ -174,7 +178,9 @@ class Onde:
 
             if n >= 2:
                 self.u[n] = (
-                    2 * self.u[n - 1] - self.u[n - 2] + self.dt**2 * self.udotdot(n)
+                    2 * self.u[n - 1]
+                    - self.u[n - 2]
+                    + self.dt**2 * self.udotdot(n - 1)
                 )
 
             T_source = 0.05
