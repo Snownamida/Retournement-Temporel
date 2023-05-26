@@ -2,14 +2,14 @@ import numpy as np
 from numpy import sin, cos, pi
 from scipy.signal import fftconvolve
 from scipy import sparse
+from scipy.sparse.linalg import spsolve
 import time
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 
 def laplacian_con(u_t, dl):
-    θ = 0.5
-    Lap_kernel_1 = np.array(
+    Lap_kernel = np.array(
         [
             [0, 0, -1, 0, 0],
             [0, 0, 16, 0, 0],
@@ -18,24 +18,13 @@ def laplacian_con(u_t, dl):
             [0, 0, -1, 0, 0],
         ]
     ) / (12 * dl**2)
-    Lap_kernel_2 = np.array(
-        [
-            [-1, 0, 0, 0, -1],
-            [0, 16, 0, 16, 0],
-            [0, 0, -60, 0, 0],
-            [0, 16, 0, 16, 0],
-            [-1, 0, 0, 0, -1],
-        ]
-    ) / (24 * dl**2)
-    Lap_kernel = θ * Lap_kernel_1 + (1 - θ) * Lap_kernel_2
     Lap_u = fftconvolve(u_t, Lap_kernel, mode="same")
     return Lap_u
 
 
-def laplacian(u_t, dl):
+def laplacian_mat(u_t, dl):
     Nx, Ny = u_t.shape
     N = Nx * Ny
-    y = u_t.flatten()
     diagonals = [
         -4 * np.ones(N),
         np.ones(N - 1),
@@ -43,16 +32,15 @@ def laplacian(u_t, dl):
         np.ones(N - Ny),
         np.ones(N - Ny),
     ]
-    L = sparse.diags(diagonals, [0, 1, -1, Ny, -Ny])
-    return (L @ y / dl**2).reshape(Nx, Ny)
+    return sparse.diags(diagonals, [0, 1, -1, Ny, -Ny]) / dl**2
 
 
 class Onde:
     Lx, Ly = 4, 3  # Largeur, longueur (m)
     N_point = 401  # Nombre de points minimum selon x ou y
     c = 1.5  # Vitesse de propagation des ondes dans le milieu (m/s)
-    T = 6  # Temps final de simulation (s)
-    Nt = 2001  # Nombre d'itérations
+    T = 0.03  # Temps final de simulation (s)
+    Nt = 11  # Nombre d'itérations
     α_max = 20  # Coefficient d'amortissement
     L_absorb = 1
     T_emission = 2
@@ -122,23 +110,24 @@ class Onde:
         self.source_indices = np.rint(source_coordonnées / self.dl).astype(int)
 
     def create_simzone(self):
-        self.u_extended = np.zeros(
+        self.u = np.zeros(
             [self.Nt, self.Nx + 2 * self.N_absorb, self.Ny + 2 * self.N_absorb]
         )
-        self.u = self.u_extended[
+        self.u_sim = self.u[
             :, self.N_absorb : -self.N_absorb, self.N_absorb : -self.N_absorb
         ]
+        self.u_dot = np.zeros_like(self.u)
         self.α = np.pad(
-            np.zeros_like(self.u[0]),
+            np.zeros_like(self.u_sim[0]),
             self.N_absorb,
             "linear_ramp",
             end_values=self.α_max,
         )
+        self.Lap = laplacian_mat(self.u[0], self.dl)
 
     def udotdot(self, n):
-        Lap_u = laplacian(self.u_extended[n], self.dl)
-        C = self.c**2 * Lap_u
-        A = -self.α * (self.u_extended[n] - self.u_extended[n - 1]) / self.dt
+        C = self.c**2 * self.Lap @ self.u[n]
+        A = -self.α * (self.u[n] - self.u[n - 1]) / self.dt
 
         if self.n_emission <= n <= 2 * self.n_emission - 4:
             S = (
@@ -146,8 +135,8 @@ class Onde:
                 * np.where(
                     self.coeur,
                     (
-                        self.u[2 * self.n_emission - n - 3]
-                        - self.u[2 * self.n_emission - n - 4]
+                        self.u_sim[2 * self.n_emission - n - 3]
+                        - self.u_sim[2 * self.n_emission - n - 4]
                     ),
                     0,
                 )
@@ -165,8 +154,25 @@ class Onde:
             S = 0
         return C + A + S
 
+    def fox_goodwin(self, n):
+        Nx, Ny = self.u[0].shape
+        N = Nx * Ny
+        U = sparse.identity(N) - (self.dt * self.c) ** 2 / 12 * self.Lap
+        V = (
+            self.dt * self.u_dot[n - 1].flatten()
+            + (sparse.identity(N) + 5 / 12 * (self.dt * self.c) ** 2 * self.Lap)
+            @ self.u[n - 1].flatten()
+        )
+        self.u[n] = spsolve(
+            U,
+            V,
+        ).reshape(Nx, Ny)
+        self.u_dot[n] = self.u_dot[n - 1] + 0.5 * self.dt * self.c**2 * (
+            self.Lap @ (self.u[n - 1] + self.u[n]).flatten()
+        ).reshape(Nx, Ny)
+
     def emulate(self):
-        print(f"etimated size: {self.u.nbytes/1024**2:.2f} MB")
+        print(f"etimated size: {self.u_sim.nbytes/1024**2:.2f} MB")
 
         print("Emulating...")
         t0 = time.time()
@@ -183,17 +189,13 @@ class Onde:
             if n in (self.n_emission - 2, self.n_emission - 1):
                 continue
 
-            if n >= 2:
-                self.u_extended[n] = (
-                    self.udotdot(n - 1) * self.dt**2
-                    + 2 * self.u_extended[n - 1]
-                    - self.u_extended[n - 2]
-                )
+            if n >= 1:
+                self.fox_goodwin(n)
 
             T_source = 0.05
             if n * self.dt <= T_source:
                 for i_source, j_source in self.source_indices:
-                    self.u[n, i_source, j_source] = 0.5 * sin(
+                    self.u_sim[n, i_source, j_source] = 0.5 * sin(
                         pi / T_source * n * self.dt
                     )
 
@@ -201,20 +203,20 @@ class Onde:
 
     def save(self):
         print("Saving...")
-        np.savez_compressed("./wave/" + self.para_string, u=self.u)
+        np.savez_compressed("./wave/" + self.para_string, u=self.u_sim)
         print("done")
 
     def render(self, render_only) -> None:
         if render_only:
             u = np.load("./wave/" + self.para_string + ".npz")["u"]
         else:
-            u = self.u
+            u = self.u_sim
 
         fps = 30
         render_time = self.T  # temps de rendu
 
         # 1 seconde du temps réel correspond à combien seconde du temps de rendu
-        render_speed = 0.5
+        render_speed = 0.05
 
         N_frame = int(fps * render_time / render_speed)
 
