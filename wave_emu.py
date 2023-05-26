@@ -36,7 +36,9 @@ def laplacian_mat(u_t, dl):
         -np.ones(N - 2 * Ny),
         -np.ones(N - 2 * Ny),
     ]
-    Lap = sparse.diags(diagonals, [0, 1, -1, Ny, -Ny, 2, -2, 2 * Ny, -2 * Ny]) / dl**2
+    Lap = sparse.diags(diagonals, [0, 1, -1, Ny, -Ny, 2, -2, 2 * Ny, -2 * Ny]) / (
+        12 * dl**2
+    )
     return (Lap @ u_t.flatten()).reshape(Nx, Ny)
 
 
