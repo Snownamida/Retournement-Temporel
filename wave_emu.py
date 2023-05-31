@@ -24,7 +24,7 @@ def laplacian_con(u_t, dl):
 
 
 def laplacian_cv(u_t, dl):
-    return cv.Laplacian(u_t, -1, ksize=1)/dl**2
+    return cv.Laplacian(u_t, -1, ksize=1) / dl**2
 
 
 def laplacian_mat(u_t, dl):
@@ -129,6 +129,10 @@ class Onde:
             :, self.N_absorb : -self.N_absorb, self.N_absorb : -self.N_absorb
         ]
         self.u_dot = np.zeros_like(self.u)
+        self.c = (
+            self.c * np.ones_like(self.u[0])
+            + 0.2 * sin(2 * pi * np.arange(self.u.shape[1]) * self.dl / 2)[:, None]
+        )
         self.α = np.pad(
             np.zeros_like(self.u_sim[0]),
             self.N_absorb,
