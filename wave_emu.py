@@ -6,6 +6,7 @@ from scipy.sparse.linalg import spsolve
 import time
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import cv2 as cv
 
 
 def laplacian_con(u_t, dl):
@@ -20,6 +21,10 @@ def laplacian_con(u_t, dl):
     ) / (12 * dl**2)
     Lap_u = convolve(u_t, Lap_kernel, mode="same")
     return Lap_u
+
+
+def laplacian_cv(u_t, dl):
+    return cv.Laplacian(u_t, -1, ksize=1)/dl**2
 
 
 def laplacian_mat(u_t, dl):
@@ -132,7 +137,7 @@ class Onde:
         )
 
     def udotdot(self, n):
-        C = self.c**2 * laplacian_con(self.u[n], self.dl)
+        C = self.c**2 * laplacian_cv(self.u[n], self.dl)
         A = -self.α * (self.u[n] - self.u[n - 1]) / self.dt
 
         if self.n_emission <= n <= 2 * self.n_emission - 4:
