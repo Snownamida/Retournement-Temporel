@@ -1,7 +1,7 @@
 import numpy as np
 from numpy import sin, cos, pi
 from scipy.signal import convolve
-from scipy import sparse
+from scipy import sparse, interpolate
 from scipy.sparse.linalg import spsolve
 import time
 import matplotlib.pyplot as plt
@@ -50,10 +50,10 @@ def laplacian_mat(u_t, dl):
 
 class Onde:
     Lx, Ly = 3, 3  # Largeur, longueur (m)
-    N_point = 401  # Nombre de points minimum selon x ou y
+    N_point = 541  # Nombre de points minimum selon x ou y
     c = 1  # Vitesse de propagation des ondes dans le milieu (m/s)
-    T = 2  # Temps final de simulation (s)
-    Nt = 501  # Nombre d'itérations
+    T = 3  # Temps final de simulation (s)
+    Nt = 801  # Nombre d'itérations
     α_max = 20  # Coefficient d'amortissement
     L_absorb = 1
     T_emission = 2
@@ -116,17 +116,21 @@ class Onde:
 
     def create_capteurs(self):
         mystère = np.load("mystère/mystère.npz")
-        capx = mystère["capx"]
-        capy = mystère["capy"]
+        capx = (mystère["capx"] - 120) * 2
+        capy = (mystère["capy"] - 120) * 2
         capdonnee = mystère["capdonnee"]
-        self.u_cap = np.zeros((256,) + self.X.shape)
+        T_RT = 1
+        self.N_RT = int(T_RT / self.dt)
+        self.u_cap = np.zeros((self.N_RT,) + self.X.shape)
 
         self.coeur = np.zeros_like(self.X, dtype=bool)
         for i, j in zip(capx, capy):
             self.coeur[i, j] = True
 
-        for k in range(256):
-            self.u_cap[:, capx[k], capy[k]] = capdonnee[k]
+        for k in range(256):  # nbr de capteur
+            self.u_cap[:, capx[k], capy[k]] = interpolate.interp1d(
+                np.linspace(0, T_RT, 256), capdonnee[k]
+            )(np.linspace(0, T_RT, self.N_RT))
 
     def create_sources(self):
         source_coordonnées = np.array(
@@ -161,12 +165,12 @@ class Onde:
         C = self.c**2 * laplacian_cv(self.u[n], self.dl)
         A = -self.α * (self.u[n] - self.u[n - 1]) / self.dt
 
-        if n <= 255:
+        if n < self.N_RT:
             S = (
                 -130
                 * np.where(
                     self.coeur,
-                    (self.u_cap[256 - n - 1] - self.u_cap[256 - n]),
+                    (self.u_cap[-n - 1] - self.u_cap[-n]),
                     0,
                 )
                 / self.dt
