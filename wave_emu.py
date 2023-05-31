@@ -49,11 +49,11 @@ def laplacian_mat(u_t, dl):
 
 
 class Onde:
-    Lx, Ly = 4, 3  # Largeur, longueur (m)
+    Lx, Ly = 3, 3  # Largeur, longueur (m)
     N_point = 401  # Nombre de points minimum selon x ou y
-    c = 1.5  # Vitesse de propagation des ondes dans le milieu (m/s)
-    T = 6  # Temps final de simulation (s)
-    Nt = 2001  # Nombre d'itérations
+    c = 1  # Vitesse de propagation des ondes dans le milieu (m/s)
+    T = 2  # Temps final de simulation (s)
+    Nt = 501  # Nombre d'itérations
     α_max = 20  # Coefficient d'amortissement
     L_absorb = 1
     T_emission = 2
@@ -61,9 +61,9 @@ class Onde:
     def __init__(self, save_data, render_only, CcCcC) -> None:
         self.CcCcC = CcCcC
         self.discretize()
-        self.create_capteurs()
         self.create_sources()
         self.create_simzone()
+        self.create_capteurs()
         if not render_only:
             self.emulate()
         if save_data:
@@ -105,7 +105,7 @@ class Onde:
             coeur_fun >= coeur_size - width
         )
 
-    def create_capteurs(self):
+    def create_cercle(self):
         width = 0.005
         a, b = 2, 1.5
         coeur_size = 1.4
@@ -113,6 +113,20 @@ class Onde:
         self.coeur = (coeur_fun <= coeur_size + width) & (
             coeur_fun >= coeur_size - width
         )
+
+    def create_capteurs(self):
+        mystère = np.load("mystère/mystère.npz")
+        capx = mystère["capx"]
+        capy = mystère["capy"]
+        capdonnee = mystère["capdonnee"]
+        self.u_cap = np.zeros((256,) + self.X.shape)
+
+        self.coeur = np.zeros_like(self.X, dtype=bool)
+        for i, j in zip(capx, capy):
+            self.coeur[i, j] = True
+
+        for k in range(256):
+            self.u_cap[:, capx[k], capy[k]] = capdonnee[k]
 
     def create_sources(self):
         source_coordonnées = np.array(
@@ -147,15 +161,12 @@ class Onde:
         C = self.c**2 * laplacian_cv(self.u[n], self.dl)
         A = -self.α * (self.u[n] - self.u[n - 1]) / self.dt
 
-        if self.n_emission <= n <= 2 * self.n_emission - 4:
+        if n <= 255:
             S = (
                 -130
                 * np.where(
                     self.coeur,
-                    (
-                        self.u_sim[2 * self.n_emission - n - 3]
-                        - self.u_sim[2 * self.n_emission - n - 4]
-                    ),
+                    (self.u_cap[256 - n - 1] - self.u_cap[256 - n]),
                     0,
                 )
                 / self.dt
@@ -187,23 +198,12 @@ class Onde:
                 )
                 t0 = t1
 
-            if n in (self.n_emission - 2, self.n_emission - 1):
-                self.c = 1.5
-                continue
-
             if n >= 2:
                 self.u[n] = (
                     2 * self.u[n - 1]
                     - self.u[n - 2]
                     + self.dt**2 * self.udotdot(n - 1)
                 )
-
-            T_source = 0.05
-            if n * self.dt <= T_source:
-                for i_source, j_source in self.source_indices:
-                    self.u_sim[n, i_source, j_source] = 0.5 * sin(
-                        pi / T_source * n * self.dt
-                    )
 
         print("\ndone")
 
@@ -222,7 +222,7 @@ class Onde:
         render_time = self.T  # temps de rendu
 
         # 1 seconde du temps réel correspond à combien seconde du temps de rendu
-        render_speed = 0.5
+        render_speed = 0.3
 
         N_frame = int(fps * render_time / render_speed)
 
