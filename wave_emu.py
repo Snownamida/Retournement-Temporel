@@ -120,7 +120,8 @@ class Onde:
         capy = (mystère["capy"] - 120) * 2
         capdonnee = mystère["capdonnee"]
         T_RT = 1
-        self.N_RT = int(T_RT / self.dt)
+        self.N_RT = int(T_RT / self.dt)*3
+        print(self.N_RT)
         self.u_cap = np.zeros((self.N_RT,) + self.X.shape)
 
         self.coeur = np.zeros_like(self.X, dtype=bool)
