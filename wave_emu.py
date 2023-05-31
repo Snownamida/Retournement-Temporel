@@ -116,11 +116,11 @@ class Onde:
 
     def create_capteurs(self):
         mystère = np.load("mystère/mystère.npz")
-        capx = (mystère["capx"] - 120) * 2
-        capy = (mystère["capy"] - 120) * 2
+        capy = self.N_point - (mystère["capx"] - 120) * 2
+        capx = (mystère["capy"] - 120) * 2
         capdonnee = mystère["capdonnee"]
         T_RT = 1
-        self.N_RT = int(T_RT / self.dt)*3
+        self.N_RT = int(T_RT / self.dt) * 3
         print(self.N_RT)
         self.u_cap = np.zeros((self.N_RT,) + self.X.shape)
 
