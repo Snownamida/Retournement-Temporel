@@ -7,6 +7,7 @@ import time
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import cv2 as cv
+import csv
 
 
 def laplacian_con(u_t, dl):
@@ -93,7 +94,7 @@ class Onde:
         # Chaîne de caractères pour le nom du fichier
         self.para_string = f"c={self.c}, T={self.T}, Nt={self.Nt}, N_point={self.N_point}, Lx={self.Lx}, Ly={self.Ly}, α={self.α_max}, n_absorb={self.N_absorb}"
 
-    def create_capteurs_coeur(self):
+    def create_coeur(self):
         width = 0.01
         a, b = 2, 1.5
         coeur_size = 0.8
@@ -268,4 +269,4 @@ class Onde:
         print("\ndone")
 
 
-onde = Onde(save_data=False, render_only=False, CcCcC=True)
+onde = Onde(save_data=False, render_only=False, CcCcC=False)
