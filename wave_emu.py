@@ -57,7 +57,8 @@ class Onde:
     L_absorb = 1
     T_emission = 2
 
-    def __init__(self, save_data, render_only) -> None:
+    def __init__(self, save_data, render_only, CcCcC) -> None:
+        self.CcCcC = CcCcC
         self.discretize()
         self.create_capteurs()
         self.create_sources()
@@ -129,10 +130,11 @@ class Onde:
             :, self.N_absorb : -self.N_absorb, self.N_absorb : -self.N_absorb
         ]
         self.u_dot = np.zeros_like(self.u)
-        self.c = (
-            self.c * np.ones_like(self.u[0])
-            + 0.2 * sin(2 * pi * np.arange(self.u.shape[1]) * self.dl / 2)[:, None]
-        )
+        if self.CcCcC:
+            self.c = (
+                self.c * np.ones_like(self.u[0])
+                + 0.2 * sin(2 * pi * np.arange(self.u.shape[1]) * self.dl / 2)[:, None]
+            )
         self.α = np.pad(
             np.zeros_like(self.u_sim[0]),
             self.N_absorb,
@@ -185,6 +187,7 @@ class Onde:
                 t0 = t1
 
             if n in (self.n_emission - 2, self.n_emission - 1):
+                self.c = 1.5
                 continue
 
             if n >= 2:
@@ -265,4 +268,4 @@ class Onde:
         print("\ndone")
 
 
-onde = Onde(save_data=False, render_only=False)
+onde = Onde(save_data=False, render_only=False, CcCcC=True)
