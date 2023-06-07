@@ -11,15 +11,16 @@ import csv
 
 
 def laplacian_con(u_t, dl):
-    Lap_kernel = np.array(
-        [
-            [0, 0, -1, 0, 0],
-            [0, 0, 16, 0, 0],
-            [-1, 16, -60, 16, -1],
-            [0, 0, 16, 0, 0],
-            [0, 0, -1, 0, 0],
-        ]
-    ) / (12 * dl**2)
+    Lap_kernel = (
+        np.array(
+            [
+                [0, 1, 0],
+                [1, -4, 1],
+                [0, 1, 0],
+            ]
+        )
+        / dl**2
+    )
     Lap_u = convolve(u_t, Lap_kernel, mode="same")
     return Lap_u
 
@@ -32,19 +33,13 @@ def laplacian_mat(u_t, dl):
     Nx, Ny = u_t.shape
     N = Nx * Ny
     diagonals = [
-        -60 * np.ones(N),
-        16 * np.ones(N - 1),
-        16 * np.ones(N - 1),
-        16 * np.ones(N - Ny),
-        16 * np.ones(N - Ny),
-        -np.ones(N - 2),
-        -np.ones(N - 2),
-        -np.ones(N - 2 * Ny),
-        -np.ones(N - 2 * Ny),
+        -4 * np.ones(N),
+        1 * np.ones(N - 1),
+        1 * np.ones(N - 1),
+        1 * np.ones(N - Ny),
+        1 * np.ones(N - Ny),
     ]
-    Lap = sparse.diags(diagonals, [0, 1, -1, Ny, -Ny, 2, -2, 2 * Ny, -2 * Ny]) / (
-        12 * dl**2
-    )
+    Lap = sparse.diags(diagonals, [0, 1, -1, Ny, -Ny]) / dl**2
     return (Lap @ u_t.flatten()).reshape(Nx, Ny)
 
 
