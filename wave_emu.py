@@ -53,17 +53,14 @@ class Onde:
     L_absorb = 1
     T_emission = 2
 
-    def __init__(self, save_data, render_only, CcCcC) -> None:
+    def __init__(self, CcCcC) -> None:
         self.CcCcC = CcCcC
         self.discretize()
         self.create_sources()
         self.create_simzone()
         self.create_capteurs()
-        if not render_only:
-            self.emulate()
-        if save_data:
-            self.save()
-        self.render(render_only)
+        self.emulate()
+        self.render()
 
     def discretize(self):
         # Distance `dl` entre chaque point de l'espace. -1 car le (0;0) est pris en compte dans `N_point`
@@ -103,7 +100,7 @@ class Onde:
         mystère = np.load("mystère/mystère.npz")
         capx = mystère["capx"]
         capy = mystère["capy"]
-        capdonnee = mystère["capdonnee"]
+        cap_donnee = mystère["capdonnee"]
         T_RT = 1
         self.N_RT = int(T_RT / self.dt) * 3
         self.u_cap = np.zeros((self.N_RT,) + self.X.shape)
@@ -114,7 +111,7 @@ class Onde:
 
         for k in range(256):  # nbr de capteur
             self.u_cap[:, capx[k], capy[k]] = interpolate.interp1d(
-                np.linspace(0, T_RT, 256), capdonnee[k]
+                np.linspace(0, T_RT, 256), cap_donnee[k]
             )(np.linspace(0, T_RT, self.N_RT))
 
     def create_sources(self):
@@ -196,16 +193,8 @@ class Onde:
 
         print("\ndone")
 
-    def save(self):
-        print("Saving...")
-        np.savez_compressed("./wave/" + self.para_string, u=self.u_sim)
-        print("done")
-
-    def render(self, render_only) -> None:
-        if render_only:
-            u = np.load("./wave/" + self.para_string + ".npz")["u"]
-        else:
-            u = self.u_sim
+    def render(self) -> None:
+        u = self.u_sim
 
         fps = 30
         render_time = self.T  # temps de rendu
@@ -258,4 +247,4 @@ class Onde:
         print("\ndone")
 
 
-onde = Onde(save_data=False, render_only=False, CcCcC=False)
+onde = Onde(CcCcC=False)
