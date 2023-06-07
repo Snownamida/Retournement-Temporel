@@ -89,39 +89,28 @@ class Onde:
         # Chaîne de caractères pour le nom du fichier
         self.para_string = f"c={self.c}, T={self.T}, Nt={self.Nt}, N_point={self.N_point}, Lx={self.Lx}, Ly={self.Ly}, α={self.α_max}, n_absorb={self.N_absorb}"
 
-    def create_coeur(self):
-        width = 0.01
-        a, b = 2, 1.5
-        coeur_size = 0.8
+    def create_coeur(self, width=0.01, a=2, b=1.5, size=0.8):
         coeur_fun = ((self.X - a) / 1.3) ** 2 + (
             (self.Y - b) - (np.abs(self.X - a) / 1.3) ** (2 / 3)
         ) ** 2
-        self.coeur = (coeur_fun <= coeur_size + width) & (
-            coeur_fun >= coeur_size - width
-        )
+        return (coeur_fun <= size + width) & (coeur_fun >= size - width)
 
-    def create_cercle(self):
-        width = 0.005
-        a, b = 2, 1.5
-        coeur_size = 1.4
-        coeur_fun = ((self.X - a) ** 2 + (self.Y - b) ** 2) ** 0.5
-        self.coeur = (coeur_fun <= coeur_size + width) & (
-            coeur_fun >= coeur_size - width
-        )
+    def create_cercle(self, width=0.005, a=2, b=1.5, size=1.4):
+        cercle_fun = ((self.X - a) ** 2 + (self.Y - b) ** 2) ** 0.5
+        return (cercle_fun <= size + width) & (cercle_fun >= size - width)
 
     def create_capteurs(self):
         mystère = np.load("mystère/mystère.npz")
-        capy = self.N_point - (mystère["capx"] - 120) * 2
-        capx = (mystère["capy"] - 120) * 2
+        capx = mystère["capx"]
+        capy = mystère["capy"]
         capdonnee = mystère["capdonnee"]
         T_RT = 1
         self.N_RT = int(T_RT / self.dt) * 3
-        print(self.N_RT)
         self.u_cap = np.zeros((self.N_RT,) + self.X.shape)
 
-        self.coeur = np.zeros_like(self.X, dtype=bool)
+        self.cap_forme = np.zeros_like(self.X, dtype=bool)
         for i, j in zip(capx, capy):
-            self.coeur[i, j] = True
+            self.cap_forme[i, j] = True
 
         for k in range(256):  # nbr de capteur
             self.u_cap[:, capx[k], capy[k]] = interpolate.interp1d(
@@ -165,7 +154,7 @@ class Onde:
             S = (
                 -130
                 * np.where(
-                    self.coeur,
+                    self.cap_forme,
                     (self.u_cap[-n - 1] - self.u_cap[-n]),
                     0,
                 )
@@ -250,7 +239,7 @@ class Onde:
             n = int(render_speed / self.dt / fps * n_frame)
             ax.set_title(f"t={n*self.dt:.5f}")
             u_img.set_data(u[n, :, ::-1].T)
-            coeur_img.set_offsets(np.argwhere(self.coeur) * self.dl)
+            coeur_img.set_offsets(np.argwhere(self.cap_forme) * self.dl)
             if not n_frame % 10:
                 t1 = time.time()
                 print(
