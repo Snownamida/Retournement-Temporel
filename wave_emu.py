@@ -53,6 +53,13 @@ class Onde:
     L_absorb = 1
     T_emission = 2
 
+    n = 0  # Compteur d'itérations
+
+    fps = 30
+    # 1 seconde du temps réel correspond à combien seconde du temps de rendu
+    # 只在保存视频时有用
+    render_speed = 0.3
+
     def __init__(self, CcCcC) -> None:
         self.CcCcC = CcCcC
         self.discretize()
@@ -170,13 +177,7 @@ class Onde:
         return C + A + S
 
     def config_plot(self):
-        self.fps = 30
-        self.render_time = self.T  # temps de rendu
-
-        # 1 seconde du temps réel correspond à combien seconde du temps de rendu
-        self.render_speed = 0.3
-
-        self.N_frame = int(self.fps * self.render_time / self.render_speed)
+        self.N_frame = int(self.fps * self.T / self.render_speed)
 
         self.fig, self.ax = plt.subplots(figsize=(7, 5))
         self.ax.set_xlim([0, self.Lx])
@@ -223,8 +224,6 @@ class Onde:
         return self.u_img, self.cap_img
 
     def render(self) -> None:
-        self.n = 0
-
         print("emulating...")
         self.t0 = time.time()
 
@@ -235,7 +234,9 @@ class Onde:
         if 实时渲染:
             plt.show()
         else:
-            anim.save("./wave/" + self.para_string + ".mp4", writer="ffmpeg", fps=self.fps)
+            anim.save(
+                "./wave/" + self.para_string + ".mp4", writer="ffmpeg", fps=self.fps
+            )
         print("\ndone")
 
 
