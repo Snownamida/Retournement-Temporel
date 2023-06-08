@@ -54,6 +54,7 @@ class Onde:
     T_emission = 2
 
     n = 0  # Compteur d'itérations
+    N_cache = 10  # on enrgistre l'onde pour combien de pas de temps
 
     fps = 30
     # 1 seconde du temps réel correspond à combien seconde du temps de rendu
@@ -132,7 +133,7 @@ class Onde:
 
     def create_simzone(self):
         self.u = np.zeros(
-            [self.Nt, self.Nx + 2 * self.N_absorb, self.Ny + 2 * self.N_absorb]
+            [self.N_cache, self.Nx + 2 * self.N_absorb, self.Ny + 2 * self.N_absorb]
         )
         self.u_sim = self.u[
             :, self.N_absorb : -self.N_absorb, self.N_absorb : -self.N_absorb
@@ -151,8 +152,8 @@ class Onde:
         )
 
     def udotdot(self, n):
-        C = self.c**2 * laplacian_cv(self.u[n], self.dl)
-        A = -self.α * (self.u[n] - self.u[n - 1]) / self.dt
+        C = self.c**2 * laplacian_cv(self.u[n%self.N_cache], self.dl)
+        A = -self.α * (self.u[n%self.N_cache] - self.u[n%self.N_cache - 1]) / self.dt
 
         if n < self.N_RT:
             S = (
@@ -203,14 +204,14 @@ class Onde:
 
         while self.n <= n:
             if self.n >= 2:
-                self.u[self.n] = (
-                    2 * self.u[self.n - 1]
-                    - self.u[self.n - 2]
+                self.u[self.n % self.N_cache] = (
+                    2 * self.u[(self.n - 1) % self.N_cache]
+                    - self.u[(self.n - 2) % self.N_cache]
                     + self.dt**2 * self.udotdot(self.n - 1)
                 )
             self.n += 1
 
-        self.u_img.set_data(self.u_sim[n, :, ::-1].T)
+        self.u_img.set_data(self.u_sim[n % self.N_cache, :, ::-1].T)
         self.cap_img.set_offsets(np.argwhere(self.cap_forme) * self.dl)
         if not n_frame % 10:
             t1 = time.time()
@@ -230,7 +231,7 @@ class Onde:
         anim = animation.FuncAnimation(
             self.fig, self.emulate, frames=self.N_frame, interval=50, blit=True
         )
-        实时渲染 = False
+        实时渲染 = True
         if 实时渲染:
             plt.show()
         else:
