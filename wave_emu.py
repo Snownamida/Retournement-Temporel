@@ -47,7 +47,7 @@ class Onde:
     Lx, Ly = 3, 3  # Largeur, longueur (m)
     N_point = 541  # Nombre de points minimum selon x ou y
     c = 1  # Vitesse de propagation des ondes dans le milieu (m/s)
-    T = 3  # Temps final de simulation (s)
+    T = 2.94  # Temps final de simulation (s)
     Nt = 801  # Nombre d'itérations
     α_max = 20  # Coefficient d'amortissement
     L_absorb = 1
@@ -234,7 +234,7 @@ class Onde:
         self.t0 = time.time()
 
         anim = animation.FuncAnimation(
-            self.fig, self.emulate, frames=self.N_frame, interval=50, blit=True
+            self.fig, self.emulate, frames=self.N_frame, interval=50, blit=True,repeat=False
         )
         实时渲染 = True
         if 实时渲染:
