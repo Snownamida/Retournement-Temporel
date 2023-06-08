@@ -225,14 +225,13 @@ class Onde:
 
         self.cap_img = self.ax.scatter([], [], c="r", s=1, zorder=5)
 
-    def emulate(self, n_frame):
+    def emulate(self, n_to_render):
         self.t_frames.append(time.time() - self.t_frame0)
         self.t_frame0 = time.time()
-        n = int(self.render_speed / self.dt / self.fps * n_frame)
-        self.ax.set_title(f"t={n*self.dt:.5f}")
+        self.ax.set_title(f"t={n_to_render*self.dt:.5f}")
 
         t_wave0 = time.time()
-        while self.n <= n:
+        while self.n <= n_to_render:
             if self.n >= 2:
                 self.u[self.n % self.N_cache] = (
                     2 * self.u[(self.n - 1) % self.N_cache]
@@ -242,18 +241,25 @@ class Onde:
             self.n += 1
         self.t_waves.append(time.time() - t_wave0)
 
-        self.u_img.set_data(self.u_sim[n % self.N_cache, :, ::-1].T.get())
+        self.u_img.set_data(self.u_sim[n_to_render % self.N_cache, :, ::-1].T.get())
         self.cap_img.set_offsets(argwhere(self.cap_forme).get() * self.dl)
-        if not n_frame % 10:
+        if not n_to_render % 10:
             t1 = time.time()
             print(
-                f"\r{n_frame}/{self.N_frame} le temps reste estimé : {(self.N_frame-n_frame)*(t1-self.t0)/10:.2f} s",
+                f"\r{n_to_render}/{self.Nt} le temps reste estimé : {(self.Nt-n_to_render)*(t1-self.t0)/10:.2f} s",
                 end="",
                 flush=True,
             )
             self.t0 = t1
 
         return self.u_img, self.cap_img
+
+    def ns_to_render(self):
+        n_frame = 0
+        while n_frame < self.N_frame:
+            n = int(self.render_speed / self.dt / self.fps * n_frame)
+            n_frame += 1
+            yield n
 
     def render(self) -> None:
         print("emulating...")
@@ -262,7 +268,7 @@ class Onde:
         anim = animation.FuncAnimation(
             self.fig,
             self.emulate,
-            frames=self.N_frame,
+            frames=self.ns_to_render,
             interval=50,
             blit=True,
             repeat=False,
