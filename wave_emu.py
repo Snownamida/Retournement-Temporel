@@ -60,7 +60,7 @@ class Onde:
         self.create_simzone()
         self.create_capteurs()
         self.config_plot()
-        self.emulate()
+        self.render()
 
     def discretize(self):
         # Distance `dl` entre chaque point de l'espace. -1 car le (0;0) est pris en compte dans `N_point`
@@ -195,14 +195,8 @@ class Onde:
         )
 
         self.cap_img = self.ax.scatter([], [], c="r", s=1, zorder=5)
-
-    def emulate(self) -> None:
-        self.n = 0
-
-        print("emulating...")
-        self.t0 = time.time()
-
-        def animate(n_frame):
+    
+    def emulate(self,n_frame):
             n = int(self.render_speed / self.dt / self.fps * n_frame)
             self.ax.set_title(f"t={n*self.dt:.5f}")
 
@@ -228,11 +222,18 @@ class Onde:
 
             return self.u_img, self.cap_img
 
+    def render(self) -> None:
+        self.n = 0
+
+        print("emulating...")
+        self.t0 = time.time()
+
         anim = animation.FuncAnimation(
-            self.fig, animate, frames=self.N_frame, interval=50, blit=True
+            self.fig, self.emulate, frames=self.N_frame, interval=50, blit=True
         )
         anim.save("./wave/" + self.para_string + ".mp4", writer="ffmpeg", fps=self.fps)
         print("\ndone")
+
 
 
 onde = Onde(CcCcC=False)
