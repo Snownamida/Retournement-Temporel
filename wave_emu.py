@@ -248,7 +248,7 @@ class Onde:
         self.t_waves.append(time.time() - t_wave0)
 
         self.u_img.set_data(self.u_sim[n % self.N_cache, :, ::-1].T.get())
-        self.cap_img.set_offsets(np.argwhere(self.cap_forme).get() * self.dl)
+        self.cap_img.set_offsets(argwhere(self.cap_forme).get() * self.dl)
         if not n_frame % 10:
             t1 = time.time()
             print(
