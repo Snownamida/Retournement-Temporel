@@ -170,28 +170,7 @@ class Onde:
         return C + A + S
 
     def emulate(self):
-        print(f"etimated size: {self.u_sim.nbytes/1024**2:.2f} MB")
-
-        print("Emulating...")
-        t0 = time.time()
-        for n in range(self.Nt):
-            if not n % 20:
-                t1 = time.time()
-                print(
-                    f"\r{n}/{self.Nt} le temps reste estimé : {(self.Nt-n)*(t1-t0)/20:.2f} s",
-                    end="",
-                    flush=True,
-                )
-                t0 = t1
-
-            if n >= 2:
-                self.u[n] = (
-                    2 * self.u[n - 1]
-                    - self.u[n - 2]
-                    + self.dt**2 * self.udotdot(n - 1)
-                )
-
-        print("\ndone")
+        self.n = 0
 
     def render(self) -> None:
         u = self.u_sim
@@ -227,6 +206,16 @@ class Onde:
         def animate(n_frame):
             n = int(render_speed / self.dt / fps * n_frame)
             ax.set_title(f"t={n*self.dt:.5f}")
+
+            while self.n <= n:
+                if self.n >= 2:
+                    self.u[self.n] = (
+                        2 * self.u[self.n - 1]
+                        - self.u[self.n - 2]
+                        + self.dt**2 * self.udotdot(self.n - 1)
+                    )
+                self.n += 1
+
             u_img.set_data(u[n, :, ::-1].T)
             coeur_img.set_offsets(np.argwhere(self.cap_forme) * self.dl)
             if not n_frame % 10:
