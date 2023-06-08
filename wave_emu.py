@@ -1,7 +1,21 @@
 import numpy as np
-from numpy import sin, cos, pi
+from numpy import (
+    array,
+    sin,
+    cos,
+    pi,
+    sum,
+    ones,
+    ones_like,
+    meshgrid,
+    linspace,
+    abs,
+    zeros,
+    zeros_like,
+)
 from scipy.signal import convolve
-from scipy import sparse, interpolate
+from cupyx.scipy import sparse
+from scipy import interpolate
 from scipy.sparse.linalg import spsolve
 import time
 import matplotlib.pyplot as plt
@@ -10,9 +24,21 @@ import cv2 as cv
 import csv
 
 
+def blur(u_t):
+    kernel = array(
+        [
+            [1, 1, 1],
+            [1, 1, 1],
+            [1, 1, 1],
+        ]
+    )
+    kernel = kernel / sum(kernel)
+    return convolve(u_t, kernel, mode="same")
+
+
 def laplacian_con(u_t, dl):
     Lap_kernel = (
-        np.array(
+        array(
             [
                 [0, 1, 0],
                 [1, -4, 1],
@@ -33,11 +59,11 @@ def laplacian_mat(u_t, dl):
     Nx, Ny = u_t.shape
     N = Nx * Ny
     diagonals = [
-        -4 * np.ones(N),
-        1 * np.ones(N - 1),
-        1 * np.ones(N - 1),
-        1 * np.ones(N - Ny),
-        1 * np.ones(N - Ny),
+        -4 * ones(N),
+        1 * ones(N - 1),
+        1 * ones(N - 1),
+        1 * ones(N - Ny),
+        1 * ones(N - Ny),
     ]
     Lap = sparse.diags(diagonals, [0, 1, -1, Ny, -Ny]) / dl**2
     return (Lap @ u_t.flatten()).reshape(Nx, Ny)
@@ -64,6 +90,9 @@ class Onde:
     render_speed = 0.3
 
     def __init__(self) -> None:
+        self.t_frame0 = time.time()
+        self.t_frames = []
+        self.t_waves = []
         self.discretize()
         self.create_sources()
         self.create_simzone()
@@ -81,8 +110,8 @@ class Onde:
 
         self.X, self.Y = [
             grid.T
-            for grid in np.meshgrid(
-                np.linspace(0, self.Lx, self.Nx), np.linspace(0, self.Ly, self.Ny)
+            for grid in meshgrid(
+                linspace(0, self.Lx, self.Nx), linspace(0, self.Ly, self.Ny)
             )
         ]
 
@@ -97,7 +126,7 @@ class Onde:
 
     def create_coeur(self, width=0.01, a=2, b=1.5, size=0.8):
         coeur_fun = ((self.X - a) / 1.3) ** 2 + (
-            (self.Y - b) - (np.abs(self.X - a) / 1.3) ** (2 / 3)
+            (self.Y - b) - (abs(self.X - a) / 1.3) ** (2 / 3)
         ) ** 2
         return (coeur_fun <= size + width) & (coeur_fun >= size - width)
 
@@ -112,19 +141,19 @@ class Onde:
         cap_donnee = mystère["capdonnee"]
         T_RT = 1
         self.N_RT = int(T_RT / self.dt) * 3
-        self.u_cap = np.zeros((self.N_RT,) + self.X.shape)
+        self.u_cap = zeros((self.N_RT,) + self.X.shape)
 
-        self.cap_forme = np.zeros_like(self.X, dtype=bool)
+        self.cap_forme = zeros_like(self.X, dtype=bool)
         for i, j in zip(capx, capy):
             self.cap_forme[i, j] = True
 
         for k in range(256):  # nbr de capteur
             self.u_cap[:, capx[k], capy[k]] = interpolate.interp1d(
-                np.linspace(0, T_RT, 256), cap_donnee[k]
-            )(np.linspace(0, T_RT, self.N_RT))
+                np.linspace(0, T_RT, 256), np.array(cap_donnee[k])
+            )(linspace(0, T_RT, self.N_RT))
 
     def create_sources(self):
-        source_coordonnées = np.array(
+        source_coordonnées = array(
             [
                 [1.9, 2.2],
                 [2.5, 1],
@@ -133,20 +162,20 @@ class Onde:
         self.source_indices = np.rint(source_coordonnées / self.dl).astype(int)
 
     def create_simzone(self):
-        self.u = np.zeros(
+        self.u = zeros(
             [self.N_cache, self.Nx + 2 * self.N_absorb, self.Ny + 2 * self.N_absorb]
         )
         self.u_sim = self.u[
             :, self.N_absorb : -self.N_absorb, self.N_absorb : -self.N_absorb
         ]
-        self.u_dot = np.zeros_like(self.u)
+        self.u_dot = zeros_like(self.u)
         if self.CcCcC:
             self.c = (
-                self.c * np.ones_like(self.u[0])
+                self.c * ones_like(self.u[0])
                 + 0.2 * sin(2 * pi * np.arange(self.u.shape[1]) * self.dl / 2)[:, None]
             )
         self.α = np.pad(
-            np.zeros_like(self.u_sim[0]),
+            zeros_like(self.u_sim[0]),
             self.N_absorb,
             "linear_ramp",
             end_values=self.α_max,
@@ -204,9 +233,13 @@ class Onde:
         self.cap_img = self.ax.scatter([], [], c="r", s=1, zorder=5)
 
     def emulate(self, n_frame):
+        # print(f"渲染一帧耗费了{time.time()-self.t_frame0:.2f}")
+        self.t_frames.append(time.time() - self.t_frame0)
+        self.t_frame0 = time.time()
         n = int(self.render_speed / self.dt / self.fps * n_frame)
         self.ax.set_title(f"t={n*self.dt:.5f}")
 
+        t_wave0 = time.time()
         while self.n <= n:
             if self.n >= 2:
                 self.u[self.n % self.N_cache] = (
@@ -215,8 +248,10 @@ class Onde:
                     + self.dt**2 * self.udotdot(self.n - 1)
                 )
             self.n += 1
+        # print(f"其中,计算波函数耗费了{time.time()-t_wave0:.2f}")
+        self.t_waves.append(time.time() - t_wave0)
 
-        self.u_img.set_data(self.u_sim[n % self.N_cache, :, ::-1].T)
+        self.u_img.set_data(blur(self.u_sim[n % self.N_cache, :, ::-1].T))
         self.cap_img.set_offsets(np.argwhere(self.cap_forme) * self.dl)
         if not n_frame % 10:
             t1 = time.time()
@@ -234,7 +269,12 @@ class Onde:
         self.t0 = time.time()
 
         anim = animation.FuncAnimation(
-            self.fig, self.emulate, frames=self.N_frame, interval=50, blit=True,repeat=False
+            self.fig,
+            self.emulate,
+            frames=self.N_frame,
+            interval=50,
+            blit=True,
+            repeat=False,
         )
         实时渲染 = True
         if 实时渲染:
@@ -247,3 +287,7 @@ class Onde:
 
 
 onde = Onde()
+
+
+print(f"渲染耗费了{sum(onde.t_frames):.2f} s")
+print(f"其中,计算波函数耗费了{sum(onde.t_waves):.2f} s")
