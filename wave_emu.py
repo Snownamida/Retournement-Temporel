@@ -53,6 +53,8 @@ class Onde:
     L_absorb = 1
     T_emission = 2
 
+    CcCcC = False  # True pour activer la variation de c
+
     n = 0  # Compteur d'itérations
     N_cache = 10  # on enrgistre l'onde pour combien de pas de temps
 
@@ -61,8 +63,7 @@ class Onde:
     # 只在保存视频时有用
     render_speed = 0.3
 
-    def __init__(self, CcCcC) -> None:
-        self.CcCcC = CcCcC
+    def __init__(self) -> None:
         self.discretize()
         self.create_sources()
         self.create_simzone()
@@ -245,4 +246,4 @@ class Onde:
         print("\ndone")
 
 
-onde = Onde(CcCcC=False)
+onde = Onde()
