@@ -152,8 +152,12 @@ class Onde:
         )
 
     def udotdot(self, n):
-        C = self.c**2 * laplacian_cv(self.u[n%self.N_cache], self.dl)
-        A = -self.α * (self.u[n%self.N_cache] - self.u[n%self.N_cache - 1]) / self.dt
+        C = self.c**2 * laplacian_cv(self.u[n % self.N_cache], self.dl)
+        A = (
+            -self.α
+            * (self.u[n % self.N_cache] - self.u[n % self.N_cache - 1])
+            / self.dt
+        )
 
         if n < self.N_RT:
             S = (
