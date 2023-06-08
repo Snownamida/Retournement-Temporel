@@ -1,10 +1,9 @@
 import numpy as np
-from numpy import (
+from cupy import (
     array,
     sin,
     cos,
     pi,
-    sum,
     ones,
     ones_like,
     meshgrid,
@@ -12,28 +11,21 @@ from numpy import (
     abs,
     zeros,
     zeros_like,
+    where,
+    pad,
+    arange,
+    rint,
+    load,
+    argwhere,
 )
-from scipy.signal import convolve
+from cupyx.scipy.signal import convolve
 from cupyx.scipy import sparse
 from scipy import interpolate
-from scipy.sparse.linalg import spsolve
+from cupyx.scipy.sparse.linalg import spsolve
+from cupyx.scipy.ndimage import laplace
 import time
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-import cv2 as cv
-import csv
-
-
-def blur(u_t):
-    kernel = array(
-        [
-            [1, 1, 1],
-            [1, 1, 1],
-            [1, 1, 1],
-        ]
-    )
-    kernel = kernel / sum(kernel)
-    return convolve(u_t, kernel, mode="same")
 
 
 def laplacian_con(u_t, dl):
@@ -53,6 +45,10 @@ def laplacian_con(u_t, dl):
 
 def laplacian_cv(u_t, dl):
     return cv.Laplacian(u_t, -1, ksize=1) / dl**2
+
+
+def laplacian_sp(u_t, dl):
+    return laplace(u_t) / dl**2
 
 
 def laplacian_mat(u_t, dl):
@@ -135,7 +131,7 @@ class Onde:
         return (cercle_fun <= size + width) & (cercle_fun >= size - width)
 
     def create_capteurs(self):
-        mystère = np.load("mystère/mystère.npz")
+        mystère = load("mystère/mystère.npz")
         capx = mystère["capx"]
         capy = mystère["capy"]
         cap_donnee = mystère["capdonnee"]
@@ -149,8 +145,8 @@ class Onde:
 
         for k in range(256):  # nbr de capteur
             self.u_cap[:, capx[k], capy[k]] = interpolate.interp1d(
-                np.linspace(0, T_RT, 256), np.array(cap_donnee[k])
-            )(linspace(0, T_RT, self.N_RT))
+                np.linspace(0, T_RT, 256), cap_donnee[k].get()
+            )(np.linspace(0, T_RT, self.N_RT))
 
     def create_sources(self):
         source_coordonnées = array(
@@ -159,7 +155,7 @@ class Onde:
                 [2.5, 1],
             ]
         )
-        self.source_indices = np.rint(source_coordonnées / self.dl).astype(int)
+        self.source_indices = rint(source_coordonnées / self.dl).astype(int)
 
     def create_simzone(self):
         self.u = zeros(
@@ -172,9 +168,9 @@ class Onde:
         if self.CcCcC:
             self.c = (
                 self.c * ones_like(self.u[0])
-                + 0.2 * sin(2 * pi * np.arange(self.u.shape[1]) * self.dl / 2)[:, None]
+                + 0.2 * sin(2 * pi * arange(self.u.shape[1]) * self.dl / 2)[:, None]
             )
-        self.α = np.pad(
+        self.α = pad(
             zeros_like(self.u_sim[0]),
             self.N_absorb,
             "linear_ramp",
@@ -182,7 +178,7 @@ class Onde:
         )
 
     def udotdot(self, n):
-        C = self.c**2 * laplacian_cv(self.u[n % self.N_cache], self.dl)
+        C = self.c**2 * laplacian_sp(self.u[n % self.N_cache], self.dl)
         A = (
             -self.α
             * (self.u[n % self.N_cache] - self.u[n % self.N_cache - 1])
@@ -192,7 +188,7 @@ class Onde:
         if n < self.N_RT:
             S = (
                 -130
-                * np.where(
+                * where(
                     self.cap_forme,
                     (self.u_cap[-n - 1] - self.u_cap[-n]),
                     0,
@@ -200,7 +196,7 @@ class Onde:
                 / self.dt
             )
 
-            S = np.pad(
+            S = pad(
                 S,
                 self.N_absorb,
                 "constant",
@@ -251,8 +247,8 @@ class Onde:
         # print(f"其中,计算波函数耗费了{time.time()-t_wave0:.2f}")
         self.t_waves.append(time.time() - t_wave0)
 
-        self.u_img.set_data(blur(self.u_sim[n % self.N_cache, :, ::-1].T))
-        self.cap_img.set_offsets(np.argwhere(self.cap_forme) * self.dl)
+        self.u_img.set_data(self.u_sim[n % self.N_cache, :, ::-1].T.get())
+        self.cap_img.set_offsets(np.argwhere(self.cap_forme).get() * self.dl)
         if not n_frame % 10:
             t1 = time.time()
             print(
