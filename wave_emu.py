@@ -43,10 +43,6 @@ def laplacian_con(u_t, dl):
     return Lap_u
 
 
-def laplacian_cv(u_t, dl):
-    return cv.Laplacian(u_t, -1, ksize=1) / dl**2
-
-
 def laplacian_sp(u_t, dl):
     return laplace(u_t) / dl**2
 
@@ -210,6 +206,7 @@ class Onde:
     def config_plot(self):
         self.N_frame = int(self.fps * self.T / self.render_speed)
 
+        plt.ioff()
         self.fig, self.ax = plt.subplots(figsize=(7, 5))
         self.ax.set_xlim([0, self.Lx])
         self.ax.set_ylim([0, self.Ly])
