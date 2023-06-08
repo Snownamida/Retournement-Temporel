@@ -82,9 +82,6 @@ class Onde:
     render_speed = 0.3
 
     def __init__(self) -> None:
-        self.t_frame0 = time.time()
-        self.t_frames = []
-        self.t_waves = []
         self.discretize()
         self.create_sources()
         self.create_simzone()
@@ -221,16 +218,14 @@ class Onde:
             vmax=u_max,
             extent=[0, self.Lx, 0, self.Ly],
             zorder=0,
+            interpolation="none"
         )
 
         self.cap_img = self.ax.scatter([], [], c="r", s=1, zorder=5)
 
     def emulate(self, n_to_render):
-        self.t_frames.append(time.time() - self.t_frame0)
-        self.t_frame0 = time.time()
         self.ax.set_title(f"t={n_to_render*self.dt:.5f}")
 
-        t_wave0 = time.time()
         while self.n <= n_to_render:
             if self.n >= 2:
                 self.u[self.n % self.N_cache] = (
@@ -239,9 +234,11 @@ class Onde:
                     + self.dt**2 * self.udotdot(self.n - 1)
                 )
             self.n += 1
-        self.t_waves.append(time.time() - t_wave0)
 
-        self.u_img.set_data(self.u_sim[n_to_render % self.N_cache, :, ::-1].T.get())
+        # aaa = time.time()
+        self.u_img.set_data(self.u_sim[n_to_render % self.N_cache, ::1, ::-1].T.get())
+        # print(time.time() - aaa)
+
         self.cap_img.set_offsets(argwhere(self.cap_forme).get() * self.dl)
         if not n_to_render % 10:
             t1 = time.time()
@@ -251,7 +248,6 @@ class Onde:
                 flush=True,
             )
             self.t0 = t1
-
         return self.u_img, self.cap_img
 
     def ns_to_render(self):
@@ -286,7 +282,3 @@ class Onde:
 
 
 onde = Onde()
-
-
-print(f"渲染耗费了{sum(onde.t_frames):.2f} s")
-print(f"其中,计算波函数耗费了{sum(onde.t_waves):.2f} s")
