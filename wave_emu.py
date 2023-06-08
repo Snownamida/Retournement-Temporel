@@ -231,8 +231,11 @@ class Onde:
         anim = animation.FuncAnimation(
             self.fig, self.emulate, frames=self.N_frame, interval=50, blit=True
         )
-        # anim.save("./wave/" + self.para_string + ".mp4", writer="ffmpeg", fps=self.fps)
-        plt.show()
+        实时渲染 = False
+        if 实时渲染:
+            plt.show()
+        else:
+            anim.save("./wave/" + self.para_string + ".mp4", writer="ffmpeg", fps=self.fps)
         print("\ndone")
 
 
