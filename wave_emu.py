@@ -260,6 +260,8 @@ class Onde:
             n = int(self.render_speed / self.dt / self.fps * n_frame)
             n_frame += 1
             yield n
+        else:
+            yield self.Nt - 1
 
     def render(self) -> None:
         print("emulating...")
