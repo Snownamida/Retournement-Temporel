@@ -195,32 +195,32 @@ class Onde:
         )
 
         self.cap_img = self.ax.scatter([], [], c="r", s=1, zorder=5)
-    
-    def emulate(self,n_frame):
-            n = int(self.render_speed / self.dt / self.fps * n_frame)
-            self.ax.set_title(f"t={n*self.dt:.5f}")
 
-            while self.n <= n:
-                if self.n >= 2:
-                    self.u[self.n] = (
-                        2 * self.u[self.n - 1]
-                        - self.u[self.n - 2]
-                        + self.dt**2 * self.udotdot(self.n - 1)
-                    )
-                self.n += 1
+    def emulate(self, n_frame):
+        n = int(self.render_speed / self.dt / self.fps * n_frame)
+        self.ax.set_title(f"t={n*self.dt:.5f}")
 
-            self.u_img.set_data(self.u_sim[n, :, ::-1].T)
-            self.cap_img.set_offsets(np.argwhere(self.cap_forme) * self.dl)
-            if not n_frame % 10:
-                t1 = time.time()
-                print(
-                    f"\r{n_frame}/{self.N_frame} le temps reste estimé : {(self.N_frame-n_frame)*(t1-self.t0)/10:.2f} s",
-                    end="",
-                    flush=True,
+        while self.n <= n:
+            if self.n >= 2:
+                self.u[self.n] = (
+                    2 * self.u[self.n - 1]
+                    - self.u[self.n - 2]
+                    + self.dt**2 * self.udotdot(self.n - 1)
                 )
-                self.t0 = t1
+            self.n += 1
 
-            return self.u_img, self.cap_img
+        self.u_img.set_data(self.u_sim[n, :, ::-1].T)
+        self.cap_img.set_offsets(np.argwhere(self.cap_forme) * self.dl)
+        if not n_frame % 10:
+            t1 = time.time()
+            print(
+                f"\r{n_frame}/{self.N_frame} le temps reste estimé : {(self.N_frame-n_frame)*(t1-self.t0)/10:.2f} s",
+                end="",
+                flush=True,
+            )
+            self.t0 = t1
+
+        return self.u_img, self.cap_img
 
     def render(self) -> None:
         self.n = 0
@@ -233,7 +233,6 @@ class Onde:
         )
         anim.save("./wave/" + self.para_string + ".mp4", writer="ffmpeg", fps=self.fps)
         print("\ndone")
-
 
 
 onde = Onde(CcCcC=False)
