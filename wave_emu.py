@@ -218,7 +218,7 @@ class Onde:
             vmax=u_max,
             extent=[0, self.Lx, 0, self.Ly],
             zorder=0,
-            interpolation="none"
+            interpolation="none",
         )
 
         self.cap_img = self.ax.scatter([], [], c="r", s=1, zorder=5)
