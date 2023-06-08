@@ -231,7 +231,8 @@ class Onde:
         anim = animation.FuncAnimation(
             self.fig, self.emulate, frames=self.N_frame, interval=50, blit=True
         )
-        anim.save("./wave/" + self.para_string + ".mp4", writer="ffmpeg", fps=self.fps)
+        # anim.save("./wave/" + self.para_string + ".mp4", writer="ffmpeg", fps=self.fps)
+        plt.show()
         print("\ndone")
 
 
