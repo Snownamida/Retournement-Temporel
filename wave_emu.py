@@ -59,8 +59,8 @@ class Onde:
         self.create_sources()
         self.create_simzone()
         self.create_capteurs()
+        self.config_plot()
         self.emulate()
-        self.render()
 
     def discretize(self):
         # Distance `dl` entre chaque point de l'espace. -1 car le (0;0) est pris en compte dans `N_point`
@@ -168,11 +168,10 @@ class Onde:
         else:
             S = 0
         return C + A + S
-
-    def emulate(self):
+    def config_plot(self):
+        pass
+    def emulate(self) -> None:
         self.n = 0
-
-    def render(self) -> None:
         u = self.u_sim
 
         fps = 30
