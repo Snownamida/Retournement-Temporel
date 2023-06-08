@@ -226,7 +226,6 @@ class Onde:
         self.cap_img = self.ax.scatter([], [], c="r", s=1, zorder=5)
 
     def emulate(self, n_frame):
-        # print(f"渲染一帧耗费了{time.time()-self.t_frame0:.2f}")
         self.t_frames.append(time.time() - self.t_frame0)
         self.t_frame0 = time.time()
         n = int(self.render_speed / self.dt / self.fps * n_frame)
@@ -241,7 +240,6 @@ class Onde:
                     + self.dt**2 * self.udotdot(self.n - 1)
                 )
             self.n += 1
-        # print(f"其中,计算波函数耗费了{time.time()-t_wave0:.2f}")
         self.t_waves.append(time.time() - t_wave0)
 
         self.u_img.set_data(self.u_sim[n % self.N_cache, :, ::-1].T.get())
