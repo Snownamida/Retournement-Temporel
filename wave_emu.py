@@ -168,31 +168,24 @@ class Onde:
         else:
             S = 0
         return C + A + S
-    def config_plot(self):
-        pass
-    def emulate(self) -> None:
-        self.n = 0
-        u = self.u_sim
 
-        fps = 30
-        render_time = self.T  # temps de rendu
+    def config_plot(self):
+        self.fps = 30
+        self.render_time = self.T  # temps de rendu
 
         # 1 seconde du temps réel correspond à combien seconde du temps de rendu
-        render_speed = 0.3
+        self.render_speed = 0.3
 
-        N_frame = int(fps * render_time / render_speed)
+        self.N_frame = int(self.fps * self.render_time / self.render_speed)
 
-        fig, ax = plt.subplots(figsize=(7, 5))
-        ax.set_xlim([0, self.Lx])
-        ax.set_ylim([0, self.Ly])
-        ax.set_xlabel("x")
-        ax.set_ylabel("y")
+        self.fig, self.ax = plt.subplots(figsize=(7, 5))
+        self.ax.set_xlim([0, self.Lx])
+        self.ax.set_ylim([0, self.Ly])
+        self.ax.set_xlabel("x")
+        self.ax.set_ylabel("y")
         u_max = 0.1
 
-        print("rendering...")
-        self.t0 = time.time()
-
-        u_img = ax.imshow(
+        self.u_img = self.ax.imshow(
             [[]],
             cmap="seismic",
             vmin=-u_max,
@@ -200,11 +193,18 @@ class Onde:
             extent=[0, self.Lx, 0, self.Ly],
             zorder=0,
         )
-        coeur_img = ax.scatter([], [], c="r", s=1, zorder=5)
+
+        self.cap_img = self.ax.scatter([], [], c="r", s=1, zorder=5)
+
+    def emulate(self) -> None:
+        self.n = 0
+
+        print("emulating...")
+        self.t0 = time.time()
 
         def animate(n_frame):
-            n = int(render_speed / self.dt / fps * n_frame)
-            ax.set_title(f"t={n*self.dt:.5f}")
+            n = int(self.render_speed / self.dt / self.fps * n_frame)
+            self.ax.set_title(f"t={n*self.dt:.5f}")
 
             while self.n <= n:
                 if self.n >= 2:
@@ -215,23 +215,23 @@ class Onde:
                     )
                 self.n += 1
 
-            u_img.set_data(u[n, :, ::-1].T)
-            coeur_img.set_offsets(np.argwhere(self.cap_forme) * self.dl)
+            self.u_img.set_data(self.u_sim[n, :, ::-1].T)
+            self.cap_img.set_offsets(np.argwhere(self.cap_forme) * self.dl)
             if not n_frame % 10:
                 t1 = time.time()
                 print(
-                    f"\r{n_frame}/{N_frame} le temps reste estimé : {(N_frame-n_frame)*(t1-self.t0)/10:.2f} s",
+                    f"\r{n_frame}/{self.N_frame} le temps reste estimé : {(self.N_frame-n_frame)*(t1-self.t0)/10:.2f} s",
                     end="",
                     flush=True,
                 )
                 self.t0 = t1
 
-            return u_img, coeur_img
+            return self.u_img, self.cap_img
 
         anim = animation.FuncAnimation(
-            fig, animate, frames=N_frame, interval=50, blit=True
+            self.fig, animate, frames=self.N_frame, interval=50, blit=True
         )
-        anim.save("./wave/" + self.para_string + ".mp4", writer="ffmpeg", fps=fps)
+        anim.save("./wave/" + self.para_string + ".mp4", writer="ffmpeg", fps=self.fps)
         print("\ndone")
 
 
