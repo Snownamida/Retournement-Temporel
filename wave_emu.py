@@ -1,32 +1,62 @@
+cuda = False  # True pour utiliser cupy, False pour utiliser
+
 import numpy as np
-from cupy import (
-    array,
-    sin,
-    cos,
-    pi,
-    ones,
-    ones_like,
-    meshgrid,
-    linspace,
-    abs,
-    zeros,
-    zeros_like,
-    where,
-    pad,
-    arange,
-    rint,
-    load,
-    argwhere,
-)
-from cupyx.scipy.signal import convolve
-from cupyx.scipy import sparse
-from scipy import interpolate
-from cupyx.scipy.sparse.linalg import spsolve
-from cupyx.scipy.ndimage import laplace
 import time
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from scipy import interpolate
 
+if cuda:
+    from cupy import (
+        array,
+        sin,
+        cos,
+        pi,
+        ones,
+        ones_like,
+        meshgrid,
+        linspace,
+        abs,
+        zeros,
+        zeros_like,
+        where,
+        pad,
+        arange,
+        rint,
+        load,
+        argwhere,
+    )
+    from cupyx.scipy.signal import convolve
+    from cupyx.scipy import sparse
+    from cupyx.scipy.sparse.linalg import spsolve
+    from cupyx.scipy.ndimage import laplace
+else:
+    from numpy import (
+        array,
+        sin,
+        cos,
+        pi,
+        ones,
+        ones_like,
+        meshgrid,
+        linspace,
+        abs,
+        zeros,
+        zeros_like,
+        where,
+        pad,
+        arange,
+        rint,
+        load,
+        argwhere,
+    )
+    from scipy.signal import convolve
+    from scipy import sparse
+    from scipy.sparse.linalg import spsolve
+    from scipy.ndimage import laplace
+
+def cp_to_np(array):
+    return array.get() if cuda else array
 
 def laplacian_con(u_t, dl):
     Lap_kernel = (
@@ -138,7 +168,7 @@ class Onde:
 
         for k in range(256):  # nbr de capteur
             self.u_cap[:, capx[k], capy[k]] = interpolate.interp1d(
-                np.linspace(0, T_RT, 256), cap_donnee[k].get()
+                np.linspace(0, T_RT, 256), cp_to_np(cap_donnee[k])
             )(np.linspace(0, T_RT, self.N_RT))
 
     def create_sources(self):
@@ -236,10 +266,10 @@ class Onde:
             self.n += 1
 
         # aaa = time.time()
-        self.u_img.set_data(self.u_sim[n_to_render % self.N_cache, ::1, ::-1].T.get())
+        self.u_img.set_data(cp_to_np(self.u_sim[n_to_render % self.N_cache, ::1, ::-1].T))
         # print(time.time() - aaa)
 
-        self.cap_img.set_offsets(argwhere(self.cap_forme).get() * self.dl)
+        self.cap_img.set_offsets(cp_to_np(argwhere(self.cap_forme) * self.dl))
         if not n_to_render % 10:
             t1 = time.time()
             print(
