@@ -55,8 +55,10 @@ else:
     from scipy.sparse.linalg import spsolve
     from scipy.ndimage import laplace
 
+
 def cp_to_np(array):
     return array.get() if cuda else array
+
 
 def laplacian_con(u_t, dl):
     Lap_kernel = (
@@ -266,7 +268,9 @@ class Onde:
             self.n += 1
 
         # aaa = time.time()
-        self.u_img.set_data(cp_to_np(self.u_sim[n_to_render % self.N_cache, ::1, ::-1].T))
+        self.u_img.set_data(
+            cp_to_np(self.u_sim[n_to_render % self.N_cache, ::1, ::-1].T)
+        )
         # print(time.time() - aaa)
 
         self.cap_img.set_offsets(cp_to_np(argwhere(self.cap_forme) * self.dl))
