@@ -166,11 +166,9 @@ class Onde:
             self.capx = mystère["capx"]
             self.capy = mystère["capy"]
             self.cap_donnee = mystère["capdonnee"]
-            print(self.cap_donnee.shape)
             self.cap_donnee = interpolate.interp1d(
                 np.linspace(0, self.T_RT_duration, 256), cp_to_np(self.cap_donnee)
             )(np.linspace(0, self.T_RT_duration, self.N_RT))
-            print(self.cap_donnee.shape)
 
         self.cap_forme = zeros_like(self.X, dtype=bool)
         for i, j in zip(self.capx, self.capy):
