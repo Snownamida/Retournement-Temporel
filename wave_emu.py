@@ -109,6 +109,9 @@ class Onde:
     n = 0  # Compteur d'itérations
     N_cache = 10  # on enrgistre l'onde pour combien de pas de temps
 
+    读取外部数据 = True
+
+    实时渲染 = True
     fps = 30
     # 1 seconde du temps réel correspond à combien seconde du temps de rendu
     # 只在保存视频时有用
@@ -158,10 +161,11 @@ class Onde:
         return (cercle_fun <= size + width) & (cercle_fun >= size - width)
 
     def create_capteurs(self):
-        mystère = load("mystère/mystère.npz")
-        capx = mystère["capx"]
-        capy = mystère["capy"]
-        cap_donnee = mystère["capdonnee"]
+        if self.读取外部数据:
+            mystère = load("mystère/mystère.npz")
+            capx = mystère["capx"]
+            capy = mystère["capy"]
+            cap_donnee = mystère["capdonnee"]
         self.u_cap = zeros((self.N_RT,) + self.X.shape)
 
         self.cap_forme = zeros_like(self.X, dtype=bool)
@@ -301,8 +305,7 @@ class Onde:
             blit=True,
             repeat=False,
         )
-        实时渲染 = True
-        if 实时渲染:
+        if self.实时渲染:
             plt.show()
         else:
             anim.save(
