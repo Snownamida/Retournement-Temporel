@@ -1,4 +1,4 @@
-cuda = False  # True pour utiliser cupy, False pour utiliser
+cuda = True  # True pour utiliser cupy, False pour utiliser
 
 import numpy as np
 import time
@@ -284,28 +284,24 @@ class Onde:
             self.t0 = t1
         return self.u_img, self.cap_img
 
-    def ns_to_render(self):
-        n_frame = 0
-        while n_frame < self.N_frame:
-            n = int(self.render_speed / self.dt / self.fps * n_frame)
-            n_frame += 1
-            yield n
-        else:
-            yield self.Nt - 1
 
     def render(self) -> None:
         print("emulating...")
         self.t0 = time.time()
 
+        ns_to_render = [
+            int(self.render_speed / self.dt / self.fps * n_frame)
+            for n_frame in range(self.N_frame)
+        ] + [self.Nt - 1]
         anim = animation.FuncAnimation(
             self.fig,
             self.emulate,
-            frames=self.ns_to_render,
+            frames=ns_to_render,
             interval=1,
             blit=True,
             repeat=False,
         )
-        实时渲染 = True
+        实时渲染 = False
         if 实时渲染:
             plt.show()
         else:
