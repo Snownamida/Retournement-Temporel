@@ -267,7 +267,7 @@ class Onde:
             self.fig,
             self.emulate,
             frames=self.ns_to_render,
-            interval=50,
+            interval=1,
             blit=True,
             repeat=False,
         )
