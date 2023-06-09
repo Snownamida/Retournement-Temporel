@@ -284,7 +284,6 @@ class Onde:
             self.t0 = t1
         return self.u_img, self.cap_img
 
-
     def render(self) -> None:
         print("emulating...")
         self.t0 = time.time()
@@ -301,7 +300,7 @@ class Onde:
             blit=True,
             repeat=False,
         )
-        实时渲染 = False
+        实时渲染 = True
         if 实时渲染:
             plt.show()
         else:
