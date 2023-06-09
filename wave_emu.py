@@ -94,10 +94,10 @@ def laplacian_mat(u_t, dl):
 
 
 class Onde:
-    Lx, Ly = 3, 3  # Largeur, longueur (m)
+    Lx, Ly = 4, 3  # Largeur, longueur (m)
     N_point = 541  # Nombre de points minimum selon x ou y
     c = 1  # Vitesse de propagation des ondes dans le milieu (m/s)
-    T = 3.94  # Temps final de simulation (s)
+    T = 6.94  # Temps final de simulation (s)
     dt = 0.003
     α_max = 20  # Coefficient d'amortissement
     L_absorb = 1
@@ -273,17 +273,19 @@ class Onde:
         self.ax.set_title(f"t={n_to_render*self.dt:.5f}")
 
         while self.n <= n_to_render:
-            if self.n * self.dt < 0.1 and not self.读取外部数据:
-                self.u_sim[self.n % self.N_cache, self.sourcex, self.sourcey] = sin(
-                    2 * pi * self.n * self.dt / 0.2
-                )
-
             if self.n >= 2:
                 self.u[self.n % self.N_cache] = (
                     2 * self.u[(self.n - 1) % self.N_cache]
                     - self.u[(self.n - 2) % self.N_cache]
                     + self.dt**2 * self.udotdot(self.n - 1)
                 )
+
+            T_source = 0.05
+            if self.n * self.dt < T_source and not self.读取外部数据:
+                self.u_sim[
+                    self.n % self.N_cache, self.sourcex, self.sourcey
+                ] = 0.5 * sin(pi * self.n * self.dt / T_source)
+
             if self.n < self.N_RT and not self.读取外部数据:
                 self.cap_donnee[:, self.n] = self.u[
                     self.n % self.N_cache, self.capx, self.capy
