@@ -97,11 +97,12 @@ class Onde:
     Lx, Ly = 3, 3  # Largeur, longueur (m)
     N_point = 541  # Nombre de points minimum selon x ou y
     c = 1  # Vitesse de propagation des ondes dans le milieu (m/s)
-    T = 2.94  # Temps final de simulation (s)
+    T = 3.94  # Temps final de simulation (s)
     dt = 0.003
     α_max = 20  # Coefficient d'amortissement
     L_absorb = 1
-    T_emission = 2
+    T_RT_duration = 3
+    T_RT_begins_at = 1
 
     CcCcC = False  # True pour activer la variation de c
 
@@ -140,7 +141,8 @@ class Onde:
         # Nombre de points absorbants aux bords
         self.N_absorb = int(self.L_absorb / self.dl)
 
-        self.n_emission = int(self.T_emission / self.dt)
+        self.N_RT = int(self.T_RT_duration / self.dt)
+        self.n_RT_begins_at = int(self.T_RT_begins_at / self.dt)
 
         # Chaîne de caractères pour le nom du fichier
         self.para_string = f"c={self.c}, T={self.T}, Nt={self.Nt}, N_point={self.N_point}, Lx={self.Lx}, Ly={self.Ly}, α={self.α_max}, n_absorb={self.N_absorb}"
@@ -160,8 +162,6 @@ class Onde:
         capx = mystère["capx"]
         capy = mystère["capy"]
         cap_donnee = mystère["capdonnee"]
-        T_RT = 1
-        self.N_RT = int(T_RT / self.dt) * 3
         self.u_cap = zeros((self.N_RT,) + self.X.shape)
 
         self.cap_forme = zeros_like(self.X, dtype=bool)
@@ -170,8 +170,8 @@ class Onde:
 
         for k in range(256):  # nbr de capteur
             self.u_cap[:, capx[k], capy[k]] = interpolate.interp1d(
-                np.linspace(0, T_RT, 256), cp_to_np(cap_donnee[k])
-            )(np.linspace(0, T_RT, self.N_RT))
+                np.linspace(0, self.T_RT_duration, 256), cp_to_np(cap_donnee[k])
+            )(np.linspace(0, self.T_RT_duration, self.N_RT))
 
     def create_sources(self):
         source_coordonnées = array(
@@ -210,12 +210,15 @@ class Onde:
             / self.dt
         )
 
-        if n < self.N_RT:
+        if self.n_RT_begins_at <= n < self.n_RT_begins_at + self.N_RT:
             S = (
                 -130
                 * where(
                     self.cap_forme,
-                    (self.u_cap[-n - 1] - self.u_cap[-n]),
+                    (
+                        self.u_cap[-(n - self.n_RT_begins_at) - 1]
+                        - self.u_cap[-(n - self.n_RT_begins_at)]
+                    ),
                     0,
                 )
                 / self.dt
