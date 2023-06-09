@@ -102,7 +102,7 @@ class Onde:
     α_max = 20  # Coefficient d'amortissement
     L_absorb = 1
     T_RT_duration = 3  # 只在读取外部数据有用,否则与T_RT_begins_at一致
-    T_RT_begins_at = 3
+    T_RT_begins_at = 3  # 只在自己模拟自己RT时有用,否则为0(一上来就RT)
 
     CcCcC = False  # True pour activer la variation de c
 
@@ -144,7 +144,9 @@ class Onde:
         # Nombre de points absorbants aux bords
         self.N_absorb = int(self.L_absorb / self.dl)
 
-        if not self.读取外部数据:
+        if self.读取外部数据:
+            self.T_RT_begins_at = 0
+        else:
             self.T_RT_duration = self.T_RT_begins_at
         self.N_RT = int(self.T_RT_duration / self.dt)
         self.n_RT_begins_at = int(self.T_RT_begins_at / self.dt)
@@ -165,23 +167,22 @@ class Onde:
     def create_capteurs(self):
         if self.读取外部数据:
             mystère = load("mystère/mystère.npz")
-            self.capx = mystère["capx"]
-            self.capy = mystère["capy"]
-            self.cap_donnee = mystère["capdonnee"]
-            self.cap_donnee = interpolate.interp1d(
-                np.linspace(0, self.T_RT_duration, 256), cp_to_np(self.cap_donnee)
+            self.i_caps = mystère["i_caps"]
+            self.j_caps = mystère["j_caps"]
+            self.cap_données = mystère["cap_données"]
+            self.cap_données = interpolate.interp1d(
+                np.linspace(0, self.T_RT_duration, 256), cp_to_np(self.cap_données)
             )(np.linspace(0, self.T_RT_duration, self.N_RT))
             self.cap_forme = zeros_like(self.X, dtype=bool)
-            self.cap_forme[self.capx, self.capy] = True
+            self.cap_forme[self.i_caps, self.j_caps] = True
         else:
             self.cap_forme = self.create_cercle()
-            self.capx, self.capy = where(self.cap_forme)
-            print(self.capx[1] * self.dl, self.capy[1] * self.dl)
-            self.cap_donnee = zeros((len(self.capx), self.N_RT))
+            self.i_caps, self.j_caps = where(self.cap_forme)
+            self.cap_données = zeros((len(self.i_caps), self.N_RT))
 
     def u_cap(self, n):
         res = zeros_like(self.X)
-        res[self.capx, self.capy] = self.cap_donnee[:, n]
+        res[self.i_caps, self.j_caps] = self.cap_données[:, n]
         return res
 
     def create_sources(self):
@@ -192,7 +193,7 @@ class Onde:
             ]
         )
         self.source_indices = rint(source_coordonnées / self.dl).astype(int)
-        self.sourcex, self.sourcey = self.source_indices.T
+        self.i_sources, self.j_sources = self.source_indices.T
 
     def create_simzone(self):
         self.u = zeros(
@@ -284,12 +285,12 @@ class Onde:
             T_source = 0.05
             if self.n * self.dt < T_source and not self.读取外部数据:
                 self.u_sim[
-                    self.n % self.N_cache, self.sourcex, self.sourcey
+                    self.n % self.N_cache, self.i_sources, self.j_sources
                 ] = 0.5 * sin(pi * self.n * self.dt / T_source)
 
             if self.n < self.N_RT and not self.读取外部数据:
-                self.cap_donnee[:, self.n] = self.u_sim[
-                    self.n % self.N_cache, self.capx, self.capy
+                self.cap_données[:, self.n] = self.u_sim[
+                    self.n % self.N_cache, self.i_caps, self.j_caps
                 ]
 
             self.n += 1
