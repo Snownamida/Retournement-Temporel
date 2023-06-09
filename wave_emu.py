@@ -101,15 +101,15 @@ class Onde:
     dt = 0.003
     α_max = 20  # Coefficient d'amortissement
     L_absorb = 1
-    T_RT_duration = 3
-    T_RT_begins_at = 1
+    T_RT_duration = 3  # 只在读取外部数据有用,否则与T_RT_begins_at一致
+    T_RT_begins_at = 2
 
     CcCcC = False  # True pour activer la variation de c
 
     n = 0  # Compteur d'itérations
     N_cache = 10  # on enrgistre l'onde pour combien de pas de temps
 
-    读取外部数据 = True
+    读取外部数据 = False
 
     实时渲染 = True
     fps = 30
@@ -144,6 +144,8 @@ class Onde:
         # Nombre de points absorbants aux bords
         self.N_absorb = int(self.L_absorb / self.dl)
 
+        if not self.读取外部数据:
+            self.T_RT_duration = self.T_RT_begins_at
         self.N_RT = int(self.T_RT_duration / self.dt)
         self.n_RT_begins_at = int(self.T_RT_begins_at / self.dt)
 
@@ -169,9 +171,12 @@ class Onde:
             self.cap_donnee = interpolate.interp1d(
                 np.linspace(0, self.T_RT_duration, 256), cp_to_np(self.cap_donnee)
             )(np.linspace(0, self.T_RT_duration, self.N_RT))
-
-        self.cap_forme = zeros_like(self.X, dtype=bool)
-        self.cap_forme[self.capx, self.capy] = True
+            self.cap_forme = zeros_like(self.X, dtype=bool)
+            self.cap_forme[self.capx, self.capy] = True
+        else:
+            self.cap_forme = self.create_cercle()
+            self.capx, self.capy = where(self.cap_forme)
+            self.cap_donnee = zeros((len(self.capx), self.N_RT))
 
     def u_cap(self, n):
         res = zeros_like(self.X)
@@ -186,6 +191,7 @@ class Onde:
             ]
         )
         self.source_indices = rint(source_coordonnées / self.dl).astype(int)
+        self.sourcex, self.sourcey = self.source_indices.T
 
     def create_simzone(self):
         self.u = zeros(
@@ -267,12 +273,21 @@ class Onde:
         self.ax.set_title(f"t={n_to_render*self.dt:.5f}")
 
         while self.n <= n_to_render:
+            if self.n * self.dt < 0.1 and not self.读取外部数据:
+                self.u_sim[self.n % self.N_cache, self.sourcex, self.sourcey] = sin(
+                    2 * pi * self.n * self.dt / 0.2
+                )
+
             if self.n >= 2:
                 self.u[self.n % self.N_cache] = (
                     2 * self.u[(self.n - 1) % self.N_cache]
                     - self.u[(self.n - 2) % self.N_cache]
                     + self.dt**2 * self.udotdot(self.n - 1)
                 )
+            if self.n < self.N_RT and not self.读取外部数据:
+                self.cap_donnee[:, self.n] = self.u[
+                    self.n % self.N_cache, self.capx, self.capy
+                ]
             self.n += 1
 
         self.u_img.set_data(
