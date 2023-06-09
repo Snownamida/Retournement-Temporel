@@ -163,19 +163,24 @@ class Onde:
     def create_capteurs(self):
         if self.读取外部数据:
             mystère = load("mystère/mystère.npz")
-            capx = mystère["capx"]
-            capy = mystère["capy"]
-            cap_donnee = mystère["capdonnee"]
-        self.u_cap = zeros((self.N_RT,) + self.X.shape)
+            self.capx = mystère["capx"]
+            self.capy = mystère["capy"]
+            self.cap_donnee = mystère["capdonnee"]
+            print(self.cap_donnee.shape)
+            self.cap_donnee = interpolate.interp1d(
+                np.linspace(0, self.T_RT_duration, 256), cp_to_np(self.cap_donnee)
+            )(np.linspace(0, self.T_RT_duration, self.N_RT))
+            print(self.cap_donnee.shape)
 
         self.cap_forme = zeros_like(self.X, dtype=bool)
-        for i, j in zip(capx, capy):
+        for i, j in zip(self.capx, self.capy):
             self.cap_forme[i, j] = True
 
+    def u_cap(self, n):
+        res = zeros_like(self.X)
         for k in range(256):  # nbr de capteur
-            self.u_cap[:, capx[k], capy[k]] = interpolate.interp1d(
-                np.linspace(0, self.T_RT_duration, 256), cp_to_np(cap_donnee[k])
-            )(np.linspace(0, self.T_RT_duration, self.N_RT))
+            res[self.capx[k], self.capy[k]] = self.cap_donnee[k,n]
+        return res
 
     def create_sources(self):
         source_coordonnées = array(
@@ -220,8 +225,8 @@ class Onde:
                 * where(
                     self.cap_forme,
                     (
-                        self.u_cap[-(n - self.n_RT_begins_at) - 1]
-                        - self.u_cap[-(n - self.n_RT_begins_at)]
+                        self.u_cap(-(n - self.n_RT_begins_at) - 1)
+                        - self.u_cap(-(n - self.n_RT_begins_at))
                     ),
                     0,
                 )
