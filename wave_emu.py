@@ -98,7 +98,7 @@ class Onde:
     N_point = 541  # Nombre de points minimum selon x ou y
     c = 1  # Vitesse de propagation des ondes dans le milieu (m/s)
     T = 2.94  # Temps final de simulation (s)
-    Nt = 801  # Nombre d'itérations
+    dt = 0.003
     α_max = 20  # Coefficient d'amortissement
     L_absorb = 1
     T_emission = 2
@@ -135,8 +135,8 @@ class Onde:
                 linspace(0, self.Lx, self.Nx), linspace(0, self.Ly, self.Ny)
             )
         ]
-
-        self.dt = self.T / (self.Nt - 1)  # Pas de temps (s)
+        self.Nt = int(self.T / self.dt) + 1
+        self.T = (self.Nt - 1) * self.dt
         # Nombre de points absorbants aux bords
         self.N_absorb = int(self.L_absorb / self.dl)
 
