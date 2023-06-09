@@ -176,8 +176,7 @@ class Onde:
 
     def u_cap(self, n):
         res = zeros_like(self.X)
-        for k in range(256):  # nbr de capteur
-            res[self.capx[k], self.capy[k]] = self.cap_donnee[k,n]
+        res[self.capx, self.capy] = self.cap_donnee[:, n]
         return res
 
     def create_sources(self):
