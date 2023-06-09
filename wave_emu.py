@@ -102,7 +102,7 @@ class Onde:
     α_max = 20  # Coefficient d'amortissement
     L_absorb = 1
     T_RT_duration = 3  # 只在读取外部数据有用,否则与T_RT_begins_at一致
-    T_RT_begins_at = 2
+    T_RT_begins_at = 3
 
     CcCcC = False  # True pour activer la variation de c
 
@@ -176,6 +176,7 @@ class Onde:
         else:
             self.cap_forme = self.create_cercle()
             self.capx, self.capy = where(self.cap_forme)
+            print(self.capx[1] * self.dl, self.capy[1] * self.dl)
             self.cap_donnee = zeros((len(self.capx), self.N_RT))
 
     def u_cap(self, n):
@@ -287,9 +288,10 @@ class Onde:
                 ] = 0.5 * sin(pi * self.n * self.dt / T_source)
 
             if self.n < self.N_RT and not self.读取外部数据:
-                self.cap_donnee[:, self.n] = self.u[
+                self.cap_donnee[:, self.n] = self.u_sim[
                     self.n % self.N_cache, self.capx, self.capy
                 ]
+
             self.n += 1
 
         self.u_img.set_data(
