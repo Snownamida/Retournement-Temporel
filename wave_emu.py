@@ -270,11 +270,9 @@ class Onde:
                 )
             self.n += 1
 
-        # aaa = time.time()
         self.u_img.set_data(
             cp_to_np(self.u_sim[n_to_render % self.N_cache, ::1, ::-1].T)
         )
-        # print(time.time() - aaa)
 
         self.cap_img.set_offsets(cp_to_np(argwhere(self.cap_forme) * self.dl))
         if not n_to_render % 10:
