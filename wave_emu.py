@@ -171,8 +171,7 @@ class Onde:
             )(np.linspace(0, self.T_RT_duration, self.N_RT))
 
         self.cap_forme = zeros_like(self.X, dtype=bool)
-        for i, j in zip(self.capx, self.capy):
-            self.cap_forme[i, j] = True
+        self.cap_forme[self.capx, self.capy] = True
 
     def u_cap(self, n):
         res = zeros_like(self.X)
