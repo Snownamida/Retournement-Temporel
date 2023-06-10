@@ -111,7 +111,7 @@ class Onde:
 
     读取外部数据 = False
 
-    实时渲染 = False
+    实时渲染 = True
     fps = 30
     # 1 seconde du temps réel correspond à combien seconde du temps de rendu
     # 只在保存视频时有用
@@ -154,7 +154,7 @@ class Onde:
         # Chaîne de caractères pour le nom du fichier
         self.para_string = f"c={self.c}, T={self.T}, Nt={self.Nt}, N_point={self.N_point}, Lx={self.Lx}, Ly={self.Ly}, α={self.α_max}, n_absorb={self.N_absorb}"
 
-    def create_coeur(self, width=0.01, a=2, b=1.5, size=0.8):
+    def create_coeur(self, width=0.01, a=2, b=1.2, size=1.3):
         coeur_fun = ((self.X - a) / 1.3) ** 2 + (
             (self.Y - b) - (abs(self.X - a) / 1.3) ** (2 / 3)
         ) ** 2
@@ -190,9 +190,9 @@ class Onde:
             [
                 [1.9, 2.2],
                 [2.5, 1],
-                [1.5, 0.5],
-                [2.7, 2],
-                [2.3, 0.4],
+                [1.5, 1.5],
+                # [2.7, 2],
+                # [2.3, 0.4],
             ]
         )
         self.source_indices = rint(source_coordonnées / self.dl).astype(int)
@@ -226,8 +226,19 @@ class Onde:
             / self.dt
         )
 
+        T_source = 0.05
+        S = zeros_like(self.X)
+        if n * self.dt < T_source and not self.读取外部数据:
+            S[self.i_sources, self.j_sources] = 20000 * sin(pi * n * self.dt / T_source)
+        S = pad(
+            S,
+            self.N_absorb,
+            "constant",
+            constant_values=0,
+        )
+
         if self.n_RT_begins_at <= n < self.n_RT_begins_at + self.N_RT:
-            S = (
+            T = (
                 -130
                 * where(
                     self.cap_forme,
@@ -240,16 +251,16 @@ class Onde:
                 / self.dt
             )
 
-            S = pad(
-                S,
+            T = pad(
+                T,
                 self.N_absorb,
                 "constant",
                 constant_values=0,
             )
 
         else:
-            S = 0
-        return C + A + S
+            T = 0
+        return C + A + T + S
 
     def config_plot(self):
         self.N_frame = int(self.fps * self.T / self.render_speed)
@@ -287,12 +298,6 @@ class Onde:
                     - self.u[(self.n - 2) % self.N_cache]
                     + self.dt**2 * self.udotdot(self.n - 1)
                 )
-
-            T_source = 0.05
-            if self.n * self.dt < T_source and not self.读取外部数据:
-                self.u_sim[
-                    self.n % self.N_cache, self.i_sources, self.j_sources
-                ] = 0.5 * sin(pi * self.n * self.dt / T_source)
 
             if self.n < self.N_RT and not self.读取外部数据:
                 self.cap_données[:, self.n] = self.u_sim[
