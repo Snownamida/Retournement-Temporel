@@ -164,6 +164,10 @@ class Onde:
         cercle_fun = ((self.X - a) ** 2 + (self.Y - b) ** 2) ** 0.5
         return (cercle_fun <= size + width) & (cercle_fun >= size - width)
 
+    def create_square(self, width=0.005, a=2, b=1.5, size=1.4):
+        square_fun = abs(self.X - a) + abs(self.Y - b)
+        return (square_fun <= size + width) & (square_fun >= size - width)
+
     def create_capteurs(self):
         if self.读取外部数据:
             mystère = load("mystère/mystère.npz")
@@ -176,7 +180,7 @@ class Onde:
             self.cap_forme = zeros_like(self.X, dtype=bool)
             self.cap_forme[self.i_caps, self.j_caps] = True
         else:
-            self.cap_forme = self.create_cercle()
+            self.cap_forme = self.create_square()
             self.i_caps, self.j_caps = where(self.cap_forme)
             self.cap_données = zeros((len(self.i_caps), self.N_RT))
 
