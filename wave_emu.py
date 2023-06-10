@@ -229,7 +229,7 @@ class Onde:
         T_source = 0.05
         S = zeros_like(self.X)
         if n * self.dt < T_source and not self.读取外部数据:
-            S[self.i_sources, self.j_sources] = 20000 * sin(pi * n * self.dt / T_source)
+            S[self.i_sources, self.j_sources] = 20001 * sin(pi * n * self.dt / T_source)
         S = pad(
             S,
             self.N_absorb,
