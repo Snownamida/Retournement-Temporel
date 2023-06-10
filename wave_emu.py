@@ -167,6 +167,10 @@ class Onde:
     def create_square(self, width=0.005, a=2, b=1.5, size=1.4):
         square_fun = abs(self.X - a) + abs(self.Y - b)
         return (square_fun <= size + width) & (square_fun >= size - width)
+    
+    def create_triangle(self, width=0.02, a=0.6, b=0, size=4):
+        triangle_fun = (size-(self.X-a)-(self.Y-b))*(self.X-a)*(self.Y-b)
+        return (triangle_fun <= 1 + width) & (triangle_fun >= 1 - width)
 
     def create_capteurs(self):
         if self.读取外部数据:
@@ -180,7 +184,7 @@ class Onde:
             self.cap_forme = zeros_like(self.X, dtype=bool)
             self.cap_forme[self.i_caps, self.j_caps] = True
         else:
-            self.cap_forme = self.create_square()
+            self.cap_forme = self.create_triangle()
             self.i_caps, self.j_caps = where(self.cap_forme)
             self.cap_données = zeros((len(self.i_caps), self.N_RT))
 
