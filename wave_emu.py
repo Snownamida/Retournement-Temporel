@@ -111,7 +111,7 @@ class Onde:
 
     读取外部数据 = False
 
-    实时渲染 = True
+    实时渲染 = False
     fps = 30
     # 1 seconde du temps réel correspond à combien seconde du temps de rendu
     # 只在保存视频时有用
@@ -162,14 +162,16 @@ class Onde:
 
     def create_cercle(self, width=0.005, a=2, b=1.5, size=1.4):
         cercle_fun = ((self.X - a) ** 2 + (self.Y - b) ** 2) ** 0.5
-        return (cercle_fun <= size + width) & (cercle_fun >= size - width)
+        return (cercle_fun <= size + width) & (cercle_fun >= size - width) &(self.X>1.5)
 
     def create_square(self, width=0.005, a=2, b=1.5, size=1.4):
         square_fun = abs(self.X - a) + abs(self.Y - b)
         return (square_fun <= size + width) & (square_fun >= size - width)
-    
+
     def create_triangle(self, width=0.02, a=0.6, b=0, size=4):
-        triangle_fun = (size-(self.X-a)-(self.Y-b))*(self.X-a)*(self.Y-b)
+        triangle_fun = (
+            (size - (self.X - a) - (self.Y - b)) * (self.X - a) * (self.Y - b)
+        )
         return (triangle_fun <= 1 + width) & (triangle_fun >= 1 - width)
 
     def create_capteurs(self):
@@ -184,7 +186,7 @@ class Onde:
             self.cap_forme = zeros_like(self.X, dtype=bool)
             self.cap_forme[self.i_caps, self.j_caps] = True
         else:
-            self.cap_forme = self.create_triangle()
+            self.cap_forme = self.create_cercle()
             self.i_caps, self.j_caps = where(self.cap_forme)
             self.cap_données = zeros((len(self.i_caps), self.N_RT))
 
