@@ -162,7 +162,7 @@ class Onde:
 
     def create_cercle(self, width=0.005, a=2, b=1.5, size=1.4):
         cercle_fun = ((self.X - a) ** 2 + (self.Y - b) ** 2) ** 0.5
-        return (cercle_fun <= size + width) & (cercle_fun >= size - width) &(self.X>1.5)
+        return (cercle_fun <= size + width) & (cercle_fun >= size - width)
 
     def create_square(self, width=0.005, a=2, b=1.5, size=1.4):
         square_fun = abs(self.X - a) + abs(self.Y - b)
