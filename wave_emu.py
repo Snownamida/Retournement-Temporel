@@ -275,6 +275,9 @@ class Onde:
         self.ax.set_title(f"t={n_to_render*self.dt:.5f}")
 
         while self.n <= n_to_render:
+            if self.n == self.n_RT_begins_at and not self.读取外部数据:
+                self.u[:] = 0
+
             if self.n >= 2:
                 self.u[self.n % self.N_cache] = (
                     2 * self.u[(self.n - 1) % self.N_cache]
