@@ -97,7 +97,7 @@ class Onde:
     Lx, Ly = 4, 3  # Largeur, longueur (m)
     N_point = 541  # Nombre de points minimum selon x ou y
     c = 1  # Vitesse de propagation des ondes dans le milieu (m/s)
-    T = 6.94  # Temps final de simulation (s)
+    T = 6  # Temps final de simulation (s)
     dt = 0.003
     α_max = 20  # Coefficient d'amortissement
     L_absorb = 1
@@ -111,7 +111,7 @@ class Onde:
 
     读取外部数据 = False
 
-    实时渲染 = True
+    实时渲染 = False
     fps = 30
     # 1 seconde du temps réel correspond à combien seconde du temps de rendu
     # 只在保存视频时有用
@@ -189,7 +189,7 @@ class Onde:
         source_coordonnées = array(
             [
                 [1.9, 2.2],
-                [2.5, 1],
+                # [2.5, 1],
             ]
         )
         self.source_indices = rint(source_coordonnées / self.dl).astype(int)
@@ -252,7 +252,7 @@ class Onde:
         self.N_frame = int(self.fps * self.T / self.render_speed)
 
         plt.ioff()
-        self.fig, self.ax = plt.subplots(figsize=(7, 5))
+        self.fig, self.ax = plt.subplots(figsize=(7, 5) if self.实时渲染 else (16, 9))
         self.ax.set_xlim([0, self.Lx])
         self.ax.set_ylim([0, self.Ly])
         self.ax.set_xlabel("x")
@@ -266,7 +266,7 @@ class Onde:
             vmax=u_max,
             extent=[0, self.Lx, 0, self.Ly],
             zorder=0,
-            interpolation="none",
+            interpolation="none" if self.实时渲染 else "antialiased",
         )
 
         self.cap_img = self.ax.scatter([], [], c="r", s=1, zorder=5)
