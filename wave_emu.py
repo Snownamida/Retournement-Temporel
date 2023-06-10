@@ -189,7 +189,10 @@ class Onde:
         source_coordonnées = array(
             [
                 [1.9, 2.2],
-                # [2.5, 1],
+                [2.5, 1],
+                [1.5, 0.5],
+                [2.7, 2],
+                [2.3, 0.4],
             ]
         )
         self.source_indices = rint(source_coordonnées / self.dl).astype(int)
