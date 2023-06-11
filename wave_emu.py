@@ -111,7 +111,7 @@ class Onde:
 
     读取外部数据 = False
 
-    实时渲染 = False
+    实时渲染 = True
     fps = 30
     # 1 seconde du temps réel correspond à combien seconde du temps de rendu
     # 只在保存视频时有用
