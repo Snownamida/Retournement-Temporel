@@ -118,12 +118,7 @@ class Onde:
     render_speed = 0.3
 
     def __init__(self) -> None:
-        self.discretize()
-        self.create_sources()
-        self.create_simzone()
-        self.create_capteurs()
-        self.config_plot()
-        self.render()
+        pass
 
     def discretize(self):
         # Distance `dl` entre chaque point de l'espace. -1 car le (0;0) est pris en compte dans `N_point`
@@ -356,4 +351,11 @@ class Onde:
         print("\ndone")
 
 
-onde = Onde()
+if __name__ == "__main__":
+    onde = Onde()
+    onde.discretize()
+    onde.create_sources()
+    onde.create_simzone()
+    onde.create_capteurs()
+    onde.config_plot()
+    onde.render()
