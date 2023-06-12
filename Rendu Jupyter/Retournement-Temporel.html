@@ -15200,7 +15200,7 @@ $$
 \end{align*}
 $$<h3 id="Approche-num%C3%A9rique">Approche num&#233;rique<a class="anchor-link" href="#Approche-num%C3%A9rique">&#182;</a></h3><p>Afin de trouver la solution numérique de l'équation des ondes, nous utilisons la méthode de différence finie, avec une discrétisation de l'espace et du temps. Le temps est divisé en pas de $dt$, l'espace en pas de $dl=dx=dy$.</p>
 <p>Pour rendre le code plus lisible et moins confus, nous avons choisi les conventions suivantes. Nous avons suivi cette convention tout au long de notre code.</p>
-<img  src="img/Convention et Variables.png" width="768" height="432" align="center">
+<div align="center"><img  src="img/Convention et Variables.png" width="768" height="432" ></div>
 <p>L'équation des ondes étant une équation d'ordre 2 et ne dépendant pas de la dérivée du premier ordre, nous avons choisi le schéma explicite de Verlet à deux pas : $u(t+dt)=2u(t)-u(t-dt)+\ddot{u}(t){dt}^2$. Il permet un calcul rapide et est facile à implémenter.</p>
 <p>Pour calculer le laplacien, nous avons essayé 3 méthodes différentes : par convolution, par librairie, et par produit matriciel :</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">laplacian_con</span><span class="p">(</span><span class="n">u_t</span><span class="p">,</span> <span class="n">dl</span><span class="p">):</span>
