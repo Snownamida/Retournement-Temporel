@@ -1,4 +1,8 @@
-cuda = True  # True pour utiliser cupy, False pour utiliser
+import sys
+
+cuda = False  # True pour utiliser cupy, False pour utiliser
+if __name__ == "__main__" and "cuda" in sys.argv:
+    cuda = True
 
 import numpy as np
 import time
@@ -353,6 +357,8 @@ class Onde:
 
 if __name__ == "__main__":
     onde = Onde()
+    if "save" in sys.argv:
+        onde.实时渲染 = False
     onde.discretize()
     onde.create_sources()
     onde.create_simzone()
