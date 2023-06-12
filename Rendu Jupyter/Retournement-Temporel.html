@@ -15139,7 +15139,7 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h1>Table of Contents<span class="tocSkip"></span></h1>
+<h1>Sommaire<span class="tocSkip"></span></h1>
 <div class="toc"><ul class="toc-item"><li><span><a href="#-Le-retournement-temporel" data-toc-modified-id="-Le-retournement-temporel-1"><span class="toc-item-num">1&nbsp;&nbsp;</span> Le retournement temporel</a></span><ul class="toc-item"><li><span><a href="#Première-impression" data-toc-modified-id="Première-impression-1.1"><span class="toc-item-num">1.1&nbsp;&nbsp;</span>Première impression</a></span></li><li><span><a href="#Démarche-scientifique-et-méthodes-numériques" data-toc-modified-id="Démarche-scientifique-et-méthodes-numériques-1.2"><span class="toc-item-num">1.2&nbsp;&nbsp;</span>Démarche scientifique et méthodes numériques</a></span><ul class="toc-item"><li><span><a href="#Expression-mathématique" data-toc-modified-id="Expression-mathématique-1.2.1"><span class="toc-item-num">1.2.1&nbsp;&nbsp;</span>Expression mathématique</a></span></li><li><span><a href="#Approche-numérique" data-toc-modified-id="Approche-numérique-1.2.2"><span class="toc-item-num">1.2.2&nbsp;&nbsp;</span>Approche numérique</a></span></li><li><span><a href="#Problème-de-réflexion" data-toc-modified-id="Problème-de-réflexion-1.2.3"><span class="toc-item-num">1.2.3&nbsp;&nbsp;</span>Problème de réflexion</a></span></li></ul></li><li><span><a href="#Effet-de-différentes-conditions" data-toc-modified-id="Effet-de-différentes-conditions-1.3"><span class="toc-item-num">1.3&nbsp;&nbsp;</span>Effet de différentes conditions</a></span><ul class="toc-item"><li><span><a href="#Forme-des-capteurs" data-toc-modified-id="Forme-des-capteurs-1.3.1"><span class="toc-item-num">1.3.1&nbsp;&nbsp;</span>Forme des capteurs</a></span></li><li><span><a href="#Densité-de-capteurs" data-toc-modified-id="Densité-de-capteurs-1.3.2"><span class="toc-item-num">1.3.2&nbsp;&nbsp;</span>Densité de capteurs</a></span></li><li><span><a href="#Contour" data-toc-modified-id="Contour-1.3.3"><span class="toc-item-num">1.3.3&nbsp;&nbsp;</span>Contour</a></span></li><li><span><a href="#Milieu-anisotrope" data-toc-modified-id="Milieu-anisotrope-1.3.4"><span class="toc-item-num">1.3.4&nbsp;&nbsp;</span>Milieu anisotrope</a></span></li></ul></li><li><span><a href="#Le-dessin-mystère" data-toc-modified-id="Le-dessin-mystère-1.4"><span class="toc-item-num">1.4&nbsp;&nbsp;</span>Le dessin mystère</a></span></li><li><span><a href="#Critique" data-toc-modified-id="Critique-1.5"><span class="toc-item-num">1.5&nbsp;&nbsp;</span>Critique</a></span></li><li><span><a href="#Exécuter-le-code" data-toc-modified-id="Exécuter-le-code-1.6"><span class="toc-item-num">1.6&nbsp;&nbsp;</span>Exécuter le code</a></span><ul class="toc-item"><li><span><a href="#Dépendances" data-toc-modified-id="Dépendances-1.6.1"><span class="toc-item-num">1.6.1&nbsp;&nbsp;</span>Dépendances</a></span></li><li><span><a href="#Run" data-toc-modified-id="Run-1.6.2"><span class="toc-item-num">1.6.2&nbsp;&nbsp;</span>Run</a></span></li><li><span><a href="#Paramètres" data-toc-modified-id="Paramètres-1.6.3"><span class="toc-item-num">1.6.3&nbsp;&nbsp;</span>Paramètres</a></span></li></ul></li></ul></li></ul></div>
 
 </div>
@@ -15169,7 +15169,6 @@ body[data-format='mobile'] .jp-OutputArea-child .jp-OutputArea-output {
 </ol>
 <p>Le RT reste efficace avec des sources multiples ou de géométrie complexe :</p>
 <div align="center"><video width="768" height="432" src="video/简单多点RT.mp4" controls></video></div>
-<table><tr ><td bgcolor=red ><font color=white size=4>à compléter</font></td></tr></table>
 <p>Bien que la géométrie de la source n'épouse plus du tout la forme de $\partial \Omega$, l'onde retournée se refocalise correctement.</p>
 <h2 id="D%C3%A9marche-scientifique-et-m%C3%A9thodes-num%C3%A9riques">D&#233;marche scientifique et m&#233;thodes num&#233;riques<a class="anchor-link" href="#D%C3%A9marche-scientifique-et-m%C3%A9thodes-num%C3%A9riques">&#182;</a></h2><p>Le retournement temporel est une technique complexe alors sa simulation comporte plusieurs étapes. Tout d'abord il a fallu l'exprimer en langage mathématique : il s'agit d'écrire l'équation à résoudre et les conditions initiales ou les conditions exigées. Ensuite on réalise la simulation des ondes, avant de mettre en place les capteurs. Enfin, nous avons ajouté dans notre simulateur les codes faisant réémettre les ondes enregistrées par les capteurs au cours de la simulation.</p>
 <h3 id="Expression-math%C3%A9matique">Expression math&#233;matique<a class="anchor-link" href="#Expression-math%C3%A9matique">&#182;</a></h3><p>Comme le retournement temporel peut être appliqué aux ondes acoustiques, aux vagues, aux ondes électromagnétiques et tout autre type d'onde, notre simulateur consiste en la résolution de l'équation des ondes, soit l'équation de d'Alembert : $\ddot{u}=c^2\Delta u $ où $u$ est la fonction d'onde, $c$ la vitesse de propagation et $\Delta$ l'opérateur laplacien.</p>
@@ -15296,7 +15295,7 @@ Le signal retourné est ensuite renvoyé par les capteurs (en rouge sur la vidé
 <ul>
 <li>Les ondes évoluent sans pertes dans le milieu, à part dans la zone d'absorption. C'est donc une simplification de la réalité, mais qui n'affecte pas la géométrie des fronts d'onde, donc ne fausse nos résultats que dans une moindre mesure</li>
 <li>Les transducteurs utilisés sont parfaits, et hors erreurs de calcul informatique, ils restituent parfaitement le signal retourné.</li>
-<li>Des instabilités demeurent, et se manifestent parfois dans les résultats en tant que bruit. Cela est dû à l'utilisation d'un schéma d'ordre deux en temps. Nous avons pensé à augmenter l'ordre, mais cela aurait véritablement compliqué les calculs et l'expression, et donc la durée d'exécution et les ressources nécessaires à la simulation. Une solution aurait été de passer par des transformations de Fourier pour diminuer la complexité du programme.</li>
+<li>Des instabilités demeurent, et se manifestent parfois dans les résultats en tant que bruit. Cela est dû à l'utilisation d'un schéma d'ordre deux en temps. Nous avons pensé à augmenter l'ordre, mais cela aurait véritablement compliqué les calculs et l'expression, et par conséquent la durée d'exécution et les ressources nécessaires à la simulation. De plus, il arrive que la solution diverge, surtout lorsque la condition <a href="https://en.wikipedia.org/wiki/Courant-Friedrichs-Lewy_condition">CFL</a> n'est pas respectée, rendant la simulation inutilisable. Une solution aurait été de passer par des transformations de Fourier pour diminuer la complexité du programme.</li>
 </ul>
 <h2 id="Ex%C3%A9cuter-le-code">Ex&#233;cuter le code<a class="anchor-link" href="#Ex%C3%A9cuter-le-code">&#182;</a></h2><p>Le code est disponible sur <a href="https://github.com/Snow-tear/Retournement-Temporel">github</a>.</p>
 <p>(c'est plus simple d'avoir juste à rentrer les paramètres et exécuter que de d'abord comprendre comment ça marche)</p>
@@ -15308,18 +15307,31 @@ Le signal retourné est ensuite renvoyé par les capteurs (en rouge sur la vidé
 <h3 id="Run">Run<a class="anchor-link" href="#Run">&#182;</a></h3><p>Pour exécuter, il suffit de mettre <code>python wave_emu.py</code> dans le répertoire.</p>
 <p>Pour activer l'accélération graphique : <code>python wave_emu.py cuda</code></p>
 <p>Pour enregistrer la vidéo : <code>python wave_emu.py save</code></p>
-<h3 id="Param%C3%A8tres">Param&#232;tres<a class="anchor-link" href="#Param%C3%A8tres">&#182;</a></h3><p>Au début du code, il y a plusieurs paramètres que vous pouvez modifier pour ajuster la simulation d'ondes selon vos besoins. Voici une explication de certains de ces paramètres :</p>
-<p><code>Lx, Ly</code> : Ces paramètres définissent la largeur et la longueur de la zone de simulation en mètres.</p>
-<p><code>N_point</code> : Ce paramètre spécifie le nombre de points d'échantillonnage minimum dans chaque direction (x ou y). Il détermine la résolution spatiale de la simulation.</p>
-<p><code>c</code> : Ce paramètre représente la vitesse de propagation des ondes dans le milieu en mètres par seconde.</p>
-<p><code>T</code> : Ce paramètre définit la durée finale de la simulation en secondes. Dans cet exemple, la simulation se déroule pendant 6 secondes.</p>
-<p><code>dt</code> : Ce paramètre spécifie l'intervalle de temps entre chaque itération de la simulation en secondes. Un plus petit dt permet une simulation plus précise, mais cela augmente également le temps de calcul.</p>
-<p><code>α_max</code> : Ce paramètre est le coefficient d'amortissement, qui contrôle l'amortissement des ondes dans le milieu. Une valeur plus élevée de α_max entraîne un amortissement plus fort des ondes.</p>
-<p><code>L_absorb</code> : Ce paramètre détermine la longueur de la zone d'absorption aux bords de la simulation. Une valeur plus élevée de L_absorb augmente la zone d'absorption, ce qui permet de réduire les réflexions indésirables des ondes aux bords.</p>
-<p><code>T_RT_duration</code> et <code>T_RT_begins_at</code>: Ces paramètres sont utilisés lors de la lecture de données externes ou du RT. Ils définissent la durée de lecture des données externes ou la durée de la simulation RT.</p>
-<p><code>CcCcC</code> : Ce paramètre contrôle l'activation de la variation de la vitesse de propagation des ondes $c$. S'il est réglé sur True, la vitesse de propagation des ondes peut varier dans la simulation.</p>
-<p><code>fps</code> : Ce paramètre définit le nombre d'images par seconde lors du rendu en vidéo.</p>
-<p><code>render_speed</code> : Ce paramètre spécifie le facteur de vitesse de rendu par rapport au temps réel. Il détermine combien de temps de rendu correspond à une seconde du temps réel. Ce paramètre est utilisé lors de la sauvegarde d'une vidéo de la simulation.</p>
+<h3 id="Param%C3%A8tres">Param&#232;tres<a class="anchor-link" href="#Param%C3%A8tres">&#182;</a></h3><p>Au début du code, il y a plusieurs paramètres modifiables pour ajuster la simulation d'ondes au besoin. Voici une explication de certains de ces paramètres :</p>
+<ul>
+<li><p><code>Lx, Ly</code> : Ces paramètres définissent la largeur et la longueur de la zone de simulation en mètres.</p>
+</li>
+<li><p><code>N_point</code> : Spécifie le nombre de points d'échantillonnage minimum dans chaque direction (x ou y). Détermine la résolution spatiale de la simulation.</p>
+</li>
+<li><p><code>c</code> : Représente la vitesse de propagation des ondes dans le milieu en mètres par seconde.</p>
+</li>
+<li><p><code>T</code> : Définit la durée finale de la simulation en secondes. Dans cet exemple, la simulation se déroule pendant 6 secondes.</p>
+</li>
+<li><p><code>dt</code> : Spécifie l'intervalle de temps entre chaque itération de la simulation en secondes. Un plus petit dt permet une simulation plus précise, mais cela augmente également le temps de calcul.</p>
+</li>
+<li><p><code>α_max</code> : Coefficient d'amortissement, contrôle l'amortissement des ondes dans le milieu. Une valeur plus élevée de α_max entraîne un amortissement plus fort des ondes.</p>
+</li>
+<li><p><code>L_absorb</code> : Détermine la longueur de la zone d'absorption aux bords de la simulation. Une valeur plus élevée de L_absorb augmente la zone d'absorption, ce qui permet de réduire les réflexions indésirables des ondes aux bords.</p>
+</li>
+<li><p><code>T_RT_duration</code> et <code>T_RT_begins_at</code>: Ces paramètres sont utilisés lors de la lecture de données externes ou du RT. Ils définissent la durée de lecture des données externes ou la durée de la simulation RT.</p>
+</li>
+<li><p><code>CcCcC</code> : Contrôle l'activation de la variation de la vitesse de propagation des ondes $c$. S'il est réglé sur True, la vitesse de propagation des ondes peut varier dans la simulation.</p>
+</li>
+<li><p><code>fps</code> : Définit le nombre d'images par seconde lors du rendu en vidéo.</p>
+</li>
+<li><p><code>render_speed</code> : Spécifie le facteur de vitesse de rendu par rapport au temps réel. Détermine combien de temps de rendu correspond à une seconde du temps réel. Est utilisé lors de la sauvegarde d'une vidéo de la simulation.</p>
+</li>
+</ul>
 
 </div>
 </div>
